@@ -1,0 +1,553 @@
+<style lang="less" scoped>
+  @import './auth.less';
+</style>
+<template>
+  <div>
+    <Row>
+      <Col span="24">
+        <Card class="margin-bottom-10">
+          <Form inline>
+            <FormItem class="margin-bottom-0">
+              <Select v-model="searchConf.status" clearable placeholder='请选择状态' style="width:120px">
+                <Option :value="1">启用</Option>
+                <Option :value="0">禁用</Option>
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Input v-model="searchConf.keywords" placeholder="请输入组名称"></Input>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Button type="primary" @click="search">{{ $t('find_button') }}/{{ $t('refresh_button') }}</Button>
+            </FormItem>
+          </Form>
+        </Card>
+      </Col>
+    </Row>
+    <Row>
+      <Col span="24">
+        <Card>
+          <div class="margin-bottom-15">
+            <Button type="primary" v-has="'Auth/add'" @click="alertAdd" icon="md-add">{{ $t('add_button') }}</Button>
+          </div>
+          <div>
+            <Table :loading="listLoading" :columns="columnsList" :data="tableData" border disabled-hover></Table>
+          </div>
+          <div class="margin-top-15" style="text-align: center">
+            <Page :total="tableShow.listCount" :current="tableShow.currentPage"
+                  :page-size="tableShow.pageSize" @on-change="changePage"
+                  @on-page-size-change="changeSize" show-elevator show-sizer show-total></Page>
+          </div>
+        </Card>
+      </Col>
+    </Row>
+    <Modal v-model="modalSetting.show" width="668" :styles="{top: '30px'}" @on-visible-change="doCancel">
+      <p slot="header" style="color:#2d8cf0">
+        <Icon type="md-alert"></Icon>
+        <span>{{formItem.id ? '编辑' : '新增'}}权限组</span>
+      </p>
+      <Form ref="myForm" :rules="ruleValidate" :model="formItem" :label-width="80">
+        <FormItem label="组名称" prop="name">
+          <Input v-model="formItem.name" placeholder="请输入权限组名称"></Input>
+        </FormItem>
+        <FormItem label="组描述" prop="description">
+          <Input type="textarea" v-model="formItem.description" placeholder="请输入权限组描述"></Input>
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button type="text" @click="cancel" class="margin-right-10">取消</Button>
+        <Button type="primary" @click="submit" :loading="modalSetting.loading">确定</Button>
+      </div>
+    </Modal>
+    <Modal v-model="authSetting.show" width="668" :styles="{top: '30px'}" @on-visible-change="doCancel">
+      <p slot="header" style="color:#2d8cf0">
+        <Icon type="md-alert"></Icon>
+        <span>{{formItem.id ? '设置' : '新增'}}权限</span>
+      </p>
+      <div style="max-height: 560px;overflow: auto;">
+        <Tree ref="formTree" :data="ruleList" show-checkbox multiple></Tree>
+      </div>
+      <div slot="footer">
+        <Button type="text" @click="authSetting.show = false" class="margin-right-10">取消</Button>
+        <Button type="primary" @click="authEdit" :loading="authSetting.loading">确定</Button>
+      </div>
+    </Modal>
+    <Modal v-model="memberSetting.show" width="998" :styles="{top: '30px'}">
+      <p slot="header" style="color:#2d8cf0">
+        <Icon type="information-circled"></Icon>
+        <span>组成员列表</span>
+      </p>
+      <div>
+        <Table :loading="memberLoading" :columns="memberColumns" :data="memberData" border disabled-hover></Table>
+      </div>
+      <div class="margin-top-15" style="text-align: center">
+        <Page :total="memberShow.listCount" :current="memberShow.currentPage"
+              :page-size="memberShow.pageSize" @on-change="changeMemberPage"
+              @on-page-size-change="changeMemberSize" show-elevator show-sizer show-total></Page>
+      </div>
+      <p slot="footer"></p>
+    </Modal>
+  </div>
+</template>
+<script>
+import { getUsers } from '@/api/user'
+import { getList, add, edit, del, delMember, getRuleList, changeStatus, editRule } from '@/api/auth'
+
+const editButton = (vm, h, currentRow, index) => {
+  if (vm.buttonShow.edit) {
+    return h('Button', {
+      props: {
+        type: 'primary'
+      },
+      style: {
+        margin: '0 5px'
+      },
+      on: {
+        'click': () => {
+          vm.formItem.id = currentRow.id
+          vm.formItem.name = currentRow.name
+          vm.formItem.description = currentRow.description
+          vm.modalSetting.show = true
+          vm.modalSetting.index = index
+        }
+      }
+    }, vm.$t('edit_button'))
+  }
+}
+const authButton = (vm, h, currentRow, index) => {
+  if (vm.buttonShow.edit) {
+    return h('Button', {
+      props: {
+        type: 'info',
+        ghost: true
+      },
+      style: {
+        margin: '0 5px'
+      },
+      on: {
+        'click': () => {
+          vm.formItem.id = currentRow.id
+          getRuleList({ 'group_id': currentRow.id }).then(response => {
+            vm.ruleList = response.data.data.list
+          })
+          vm.authSetting.show = true
+          vm.authSetting.index = index
+        }
+      }
+    }, '设置权限')
+  }
+}
+const deleteButton = (vm, h, currentRow, index) => {
+  if (vm.buttonShow.del) {
+    return h('Poptip', {
+      props: {
+        confirm: true,
+        title: '您确定要删除这条数据吗? ',
+        transfer: true
+      },
+      on: {
+        'on-ok': () => {
+          del(currentRow.id).then(response => {
+            vm.tableData.splice(index, 1)
+            vm.$Message.success(response.data.msg)
+          })
+        }
+      }
+    }, [
+      h('Button', {
+        style: {
+          margin: '0 5px'
+        },
+        props: {
+          type: 'error',
+          placement: 'top',
+          loading: currentRow.isDeleting
+        }
+      }, vm.$t('delete_button'))
+    ])
+  }
+}
+const memberButton = (vm, h, currentRow, index) => {
+  if (vm.buttonShow.memberList) {
+    return h('Button', {
+      props: {
+        type: 'primary'
+      },
+      style: {
+        margin: '0 5px'
+      },
+      on: {
+        'click': () => {
+          vm.memberSetting.show = true
+          vm.memberShow.gid = currentRow.id
+          vm.getMemberList()
+        }
+      }
+    }, '组成员')
+  }
+}
+const memberDelButton = (vm, h, currentRow, index) => {
+  if (vm.buttonShow.memberDel) {
+    return h('Poptip', {
+      props: {
+        confirm: true,
+        title: '您确定要删除这条数据吗? ',
+        transfer: true
+      },
+      on: {
+        'on-ok': () => {
+          delMember({
+            uid: currentRow.id,
+            gid: vm.memberShow.gid
+          }).then(response => {
+            vm.memberData.splice(index, 1)
+            vm.$Message.success(response.data.msg)
+          })
+        }
+      }
+    }, [
+      h('Button', {
+        style: {
+          margin: '0 5px'
+        },
+        props: {
+          type: 'error',
+          placement: 'top',
+          loading: currentRow.isDeleting
+        }
+      }, vm.$t('delete_button'))
+    ])
+  }
+}
+
+export default {
+  name: 'system_auth',
+  data () {
+    return {
+      ruleList: [],
+      columnsList: [
+        {
+          title: '序号',
+          type: 'index',
+          width: 65,
+          align: 'center'
+        },
+        {
+          title: '权限组',
+          align: 'center',
+          key: 'name',
+          width: 200
+        },
+        {
+          title: '描述',
+          align: 'center',
+          key: 'description'
+        },
+        {
+          title: '成员授权',
+          align: 'center',
+          width: 116,
+          render: (h, params) => {
+            return h('div', [
+              memberButton(this, h, params.row, params.index)
+            ])
+          }
+        },
+        {
+          title: '状态',
+          align: 'center',
+          width: 100,
+          render: (h, params) => {
+            let vm = this
+            return h('i-switch', {
+              attrs: {
+                size: 'large'
+              },
+              props: {
+                'true-value': 1,
+                'false-value': 0,
+                value: params.row.status,
+                disabled: !vm.buttonShow.changeStatus
+              },
+              on: {
+                'on-change': function (status) {
+                  changeStatus(status, params.row.id).then(response => {
+                    vm.$Message.success(response.data.msg)
+                    vm.getList()
+                  })
+                }
+              }
+            }, [
+              h('span', {
+                slot: 'open'
+              }, vm.$t('open_choose')),
+              h('span', {
+                slot: 'close'
+              }, vm.$t('close_choose'))
+            ])
+          }
+        },
+        {
+          title: '操作',
+          align: 'center',
+          width: 285,
+          render: (h, params) => {
+            return h('div', [
+              authButton(this, h, params.row, params.index),
+              editButton(this, h, params.row, params.index),
+              deleteButton(this, h, params.row, params.index)
+            ])
+          }
+        }
+      ],
+      memberColumns: [
+        {
+          title: '序号',
+          type: 'index',
+          width: 65,
+          align: 'center'
+        },
+        {
+          title: '用户账号',
+          align: 'center',
+          key: 'username'
+        },
+        {
+          title: '用户昵称',
+          align: 'center',
+          key: 'nickname',
+          width: 100
+        },
+        {
+          title: '登录次数',
+          align: 'center',
+          key: 'login_times',
+          width: 100
+        },
+        {
+          title: '最后登录时间',
+          align: 'center',
+          key: 'last_login_time',
+          width: 140
+        },
+        {
+          title: '最后登录IP',
+          align: 'center',
+          key: 'last_login_ip',
+          width: 160
+        },
+        {
+          title: '状态',
+          align: 'center',
+          width: 100,
+          render: (h, params) => {
+            if (params.row.status === 1) {
+              return h('Tag', {
+                props: {
+                  'color': 'green'
+                }
+              }, '启用')
+            } else {
+              return h('Tag', {
+                props: {
+                  'color': 'red'
+                }
+              }, vm.$t('close_choose'))
+            }
+          }
+        },
+        {
+          title: '操作',
+          align: 'center',
+          width: 115,
+          render: (h, params) => {
+            return h('div', [
+              memberDelButton(this, h, params.row, params.index)
+            ])
+          }
+        }
+      ],
+      tableData: [],
+      memberData: [],
+      tableShow: {
+        currentPage: 1,
+        pageSize: 10,
+        listCount: 0
+      },
+      memberShow: {
+        currentPage: 1,
+        pageSize: 10,
+        listCount: 0,
+        gid: 0
+      },
+      searchConf: {
+        keywords: '',
+        status: ''
+      },
+      modalSetting: {
+        show: false,
+        loading: false,
+        index: 0
+      },
+      authSetting: {
+        show: false,
+        loading: false,
+        index: 0
+      },
+      memberSetting: {
+        show: false,
+        loading: false,
+        index: 0
+      },
+      formItem: {
+        name: '',
+        description: '',
+        rules: [],
+        id: 0
+      },
+      ruleValidate: {
+        name: [
+          { required: true, message: '组名称不能为空', trigger: 'blur' }
+        ]
+      },
+      buttonShow: {
+        edit: true,
+        del: true,
+        changeStatus: true,
+        memberDel: true,
+        memberList: true
+      },
+      listLoading: false,
+      memberLoading: false
+    }
+  },
+  created () {
+    let vm = this
+    vm.getList()
+    vm.hasRule('Auth/edit').then(res => {
+      vm.buttonShow.edit = res
+    })
+    vm.hasRule('Auth/del').then(res => {
+      vm.buttonShow.del = res
+    })
+    vm.hasRule('Auth/changeStatus').then(res => {
+      vm.buttonShow.changeStatus = res
+    })
+    vm.hasRule('User/getUsers').then(res => {
+      vm.buttonShow.memberList = res
+    })
+    vm.hasRule('Auth/delMember').then(res => {
+      vm.buttonShow.memberDel = res
+    })
+  },
+  methods: {
+    authEdit () {
+      let vm = this
+      vm.formItem.rules = []
+      let ruleNodes = vm.$refs['formTree'].getCheckedNodes()
+      let ruleLength = ruleNodes.length
+      if (ruleLength) {
+        for (let i = 0; i <= ruleLength - 1; i++) {
+          this.formItem.rules.push(ruleNodes[i]['key'])
+        }
+      }
+
+      vm.authSetting.loading = true
+      editRule(vm.formItem).then(response => {
+        vm.$Message.success(response.data.msg)
+        vm.authSetting.show = false
+        vm.authSetting.loading = false
+      }).catch(() => {
+        vm.authSetting.loading = false
+      })
+    },
+    alertAdd () {
+      this.modalSetting.show = true
+    },
+    submit () {
+      let vm = this
+      this.$refs['myForm'].validate((valid) => {
+        if (valid) {
+          vm.modalSetting.loading = true
+          if (vm.formItem.id === 0) {
+            add(vm.formItem).then(response => {
+              vm.$Message.success(response.data.msg)
+              vm.getList()
+              vm.cancel()
+            }).catch(() => {
+              vm.modalSetting.loading = false
+            })
+          } else {
+            edit(vm.formItem).then(response => {
+              vm.$Message.success(response.data.msg)
+              vm.getList()
+              vm.cancel()
+            }).catch(() => {
+              vm.modalSetting.loading = false
+            })
+          }
+        }
+      })
+    },
+    cancel () {
+      this.modalSetting.show = false
+    },
+    doCancel (data) {
+      if (!data) {
+        this.formItem.id = 0
+        this.$refs['myForm'].resetFields()
+        this.modalSetting.loading = false
+        this.modalSetting.index = 0
+      }
+    },
+    changePage (page) {
+      this.tableShow.currentPage = page
+      this.getList()
+    },
+    changeSize (size) {
+      this.tableShow.pageSize = size
+      this.getList()
+    },
+    changeMemberPage (page) {
+      this.memberShow.currentPage = page
+      this.getMemberList()
+    },
+    changeMemberSize (size) {
+      this.memberShow.pageSize = size
+      this.getMemberList()
+    },
+    search () {
+      this.tableShow.currentPage = 1
+      this.getList()
+    },
+    getList () {
+      let vm = this
+      let params = {
+        page: vm.tableShow.currentPage,
+        size: vm.tableShow.pageSize,
+        keywords: vm.searchConf.keywords,
+        status: vm.searchConf.status
+      }
+      vm.listLoading = true
+      getList(params).then(response => {
+        vm.tableData = response.data.data.list
+        vm.tableShow.listCount = response.data.data.count
+        vm.listLoading = false
+      })
+    },
+    getMemberList () {
+      let vm = this
+      let params = {
+        page: vm.memberShow.currentPage,
+        size: vm.memberShow.pageSize,
+        gid: vm.memberShow.gid
+      }
+      vm.memberLoading = true
+      getUsers(params).then(response => {
+        vm.memberData = response.data.data.list
+        vm.memberShow.listCount = response.data.data.count
+        vm.memberLoading = false
+      })
+    }
+  }
+}
+</script>
