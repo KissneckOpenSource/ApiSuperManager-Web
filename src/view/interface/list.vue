@@ -14,6 +14,16 @@
               </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">
+              <Select v-model="searchConf.group_hash" clearable placeholder="请选择接口分组" style="width:200px">
+                <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Select v-model="searchConf.app_group_id" clearable placeholder="请选择应用" style="width:200px">
+                <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group"> {{v.app_name}}</Option>
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
               <Select v-model="searchConf.type" clearable placeholder="请选择类别" style="width:120px">
                 <Option :value="1">接口标识</Option>
                 <Option :value="2">接口名称</Option>
@@ -21,17 +31,7 @@
               </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">
-              <Select v-model="searchConf.group_hash" clearable placeholder="请选择接口分组" style="width:200px">
-                <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
-              </Select>
-            </FormItem>
-            <FormItem class="margin-bottom-0">
               <Input v-model="searchConf.keywords" placeholder=""></Input>
-            </FormItem>
-            <FormItem class="margin-bottom-0">
-              <Select v-model="searchConf.app_group_id" clearable placeholder="请选择应用" style="width:200px">
-                <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group"> {{v.app_name}}</Option>
-              </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">
               <Button type="primary" @click="search">{{ $t('find_button') }}/{{ $t('refresh_button') }}</Button>

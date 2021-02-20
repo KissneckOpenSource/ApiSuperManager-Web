@@ -14,14 +14,14 @@
               </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">
-              <Select v-model="searchConf.type" clearable placeholder="请选择类别" style="width:120px">
-                <Option :value="1">接口组标识</Option>
-                <Option :value="2">接口组名称</Option>
+              <Select v-model="searchConf.app_hash" clearable placeholder="请选择应用分组" style="width:200px">
+                <Option v-for="(v, i) in appGroup" :value="v.hash" :kk="i" :key="v.hash">{{v.name}}</Option>
               </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">
-              <Select v-model="searchConf.app_hash" clearable placeholder="请选择应用分组" style="width:200px">
-                <Option v-for="(v, i) in appGroup" :value="v.hash" :kk="i" :key="v.hash">{{v.name}}</Option>
+              <Select v-model="searchConf.type" clearable placeholder="请选择类别" style="width:120px">
+                <Option :value="1">接口组标识</Option>
+                <Option :value="2">接口组名称</Option>
               </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">

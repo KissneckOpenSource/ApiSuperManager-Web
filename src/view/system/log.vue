@@ -43,7 +43,7 @@
 <script>
 import { getList, del } from '@/api/log'
 import expandRow from './table_expand.vue'
-import { getDate } from '@/libs/tools'
+// import { getDate } from '@/libs/tools'
 
 const deleteButton = (vm, h, currentRow, index) => {
   if (vm.buttonShow.del) {
@@ -120,10 +120,8 @@ export default {
         {
           title: '执行时间',
           align: 'center',
-          width: 170,
-          render: (h, params) => {
-            return h('span', getDate(params.row.add_time, 'year'))
-          }
+          key: 'create_time',
+          width: 170
         },
         {
           title: '操作',
