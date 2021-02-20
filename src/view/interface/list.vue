@@ -518,7 +518,7 @@ export default {
       let vm = this
       vm.app_group_id = item.id
       vm.app_group_hash = item.app_group
-      vm.app_url = item.app_url
+      vm.app_url = item.app_url + '/admin/'
     },
     confirmApp () {
       let vm = this
