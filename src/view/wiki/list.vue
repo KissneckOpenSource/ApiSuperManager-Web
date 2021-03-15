@@ -114,12 +114,12 @@
           </Form>
         </TabPane>
         <TabPane label="接口测试" style="position: relative;">
-          <Card style="width:100%">
+          <!-- <Card style="width:100%">
             <div style="text-align:center">
               <img width="120px" src="https://cn.vuejs.org/images/logo.png">
               <h3>在线测试功能，即将到来</h3>
             </div>
-          </Card>
+          </Card> -->
           <!-- <iframe
             src="http://tool.chinaz.com/tools/httptest.aspx?jdfwkey=2ugnf2"
             id="mobsf"
@@ -127,7 +127,7 @@
             frameborder="0"
             style="position:absolute;height: 100%; width:100%;"
           ></iframe> -->
-          <!-- <Form :label-width="80">
+          <Form :label-width="80">
             <FormItem label="接口地址">
               <div class="interface-test-url">
                 <Select v-model="testForm.method" style="width:300px; margin-bottom: 10px;">
@@ -139,23 +139,24 @@
               </div>
             </FormItem>
             <FormItem label="请求头部">
-              <Form>
+              <Form :label-width="120" :label-position="left">
                 <FormItem v-for="(header, ri) in header_data_test" :key="ri" :label="header.field_name">
                   <Input v-model="header.result_val" placeholder="" style="width: 400px;"></Input>
                 </FormItem>
               </Form>
             </FormItem>
             <FormItem label="请求参数">
-              <Form>
-                <FormItem v-for="(header, ri) in request_columns_test" :key="ri" :label="header.field_name" style="margin-bottom: 10px;">
-                  <Input v-model="header.result_val" placeholder="" style="width: 400px;"></Input>
-                </FormItem>
-              </Form>
+                <Form :label-width="120">
+                  <FormItem v-for="(header, ri) in request_columns_test" :key="ri" :label="header.field_name" style="margin-bottom: 10px;" :required="header.is_must === 1">
+                    <Input v-model="header.result_val" placeholder="" style="width: 400px;"></Input>
+                  </FormItem>
+                </Form>
             </FormItem>
             <FormItem label="返回示例">
-              <div>{{interfaceTestStr}}</div>
+              <json-viewer :value="interfaceTestStr"></json-viewer>
+              <!-- <div>{{}}</div> -->
             </FormItem>
-          </Form> -->
+          </Form>
         </TabPane>
       </Tabs>
     </Drawer>
@@ -166,11 +167,13 @@ import './list.less'
 import { apiGroup, detail, logout } from '@/api/wiki'
 import { setToken } from '@/libs/util'
 import ABackTop from '@/components/main/components/a-back-top'
-
+import JsonViewer from 'vue-json-viewer'
+import axios from 'axios'
 export default {
   name: 'wiki',
   components: {
-    ABackTop
+    ABackTop,
+    [JsonViewer.name]: JsonViewer
   },
   data () {
     return {
@@ -363,7 +366,7 @@ export default {
       }, // 接口测试数据
       header_data_test: [], // 接口测试头部
       request_columns_test: [], // 接口测试请求参数
-      interfaceTestStr: '' // 接口测试返回参数
+      interfaceTestStr: '等待中...' // 接口测试返回参数
     }
   },
   created () {
@@ -372,8 +375,82 @@ export default {
   methods: {
     sendRequset () {
       let vm = this
-      console.log('请求头：', vm.header_data_test)
-      console.log('请求参数：', vm.request_columns_test)
+      let methodsObject = {
+        2: 'GET',
+        1: 'POST'
+      }
+      if (!methodsObject[vm.testForm.method]) {
+        vm.$Notice.warning({
+          title: '提示',
+          desc: '错误的请求类型！'
+        })
+      }
+      console.log('请求头：', vm.getHeader())
+      console.log('请求类型：', methodsObject[vm.testForm.method])
+      console.log('请求参数：', vm.getData(methodsObject[vm.testForm.method]))
+      let options = {
+        method: methodsObject[vm.testForm.method],
+        url: vm.url,
+        headers: vm.getHeader()
+      }
+      let data, params
+      if (options.method === 'GET') {
+        params = vm.getData(methodsObject[vm.testForm.method])
+        console.log('options.params: ', params)
+      } else if (options.method === 'POST') {
+        data = vm.getData(methodsObject[vm.testForm.method])
+        console.log('options.data: ', data)
+      }
+      axios({
+        url: vm.url,
+        data: data,
+        params,
+        method: options.method,
+        headers: vm.getHeader()
+      }).then(res => {
+        vm.interfaceTestStr = res.data
+        console.log('res: ', res)
+      })
+    },
+    getHeader () {
+      let vm = this
+      let headArr = vm.header_data_test
+      if (Array.isArray(headArr) && headArr.length > 0) {
+        let identifiedHeader = {}
+        headArr.forEach(e => {
+          identifiedHeader[e.field_name] = e.result_val
+        })
+        return identifiedHeader
+      } else {
+        return {}
+      }
+    },
+    getData (method) {
+      let vm = this
+      let DataArr = vm.request_columns_test
+      if (Array.isArray(DataArr) && DataArr.length > 0) {
+        if (method === 'GET') {
+          let identifiedData = {}
+          DataArr.forEach(e => {
+            Object.defineProperty(identifiedData, e.field_name, {
+              value: e.result_val
+            })
+          })
+          return identifiedData
+        } else if (method === 'POST') {
+          let identifiedData = new FormData()
+          DataArr.forEach(e => {
+            identifiedData.append(e.field_name, e.result_val)
+          })
+          return identifiedData
+        }
+      } else {
+        if (method === 'GET') {
+          return {}
+        } else if (method === 'POST') {
+          return new FormData()
+        }
+      }
     },
     logout () {
       let vm = this
@@ -426,6 +503,7 @@ export default {
           result_val: ''
         }]
         vm.request_columns_test = res.request
+        vm.interfaceTestStr = '等待中...'
       })
     }
   }
