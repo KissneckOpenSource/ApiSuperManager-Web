@@ -376,8 +376,8 @@ export default {
     sendRequset () {
       let vm = this
       let methodsObject = {
-        2: 'GET',
-        1: 'POST'
+        2: 'get',
+        1: 'post'
       }
       if (!methodsObject[vm.testForm.method]) {
         vm.$Notice.warning({
@@ -393,21 +393,14 @@ export default {
         url: vm.url,
         headers: vm.getHeader()
       }
-      let data, params
-      if (options.method === 'GET') {
-        params = vm.getData(methodsObject[vm.testForm.method])
-        console.log('options.params: ', params)
-      } else if (options.method === 'POST') {
-        data = vm.getData(methodsObject[vm.testForm.method])
-        console.log('options.data: ', data)
+      if (options.method === 'get') {
+        let params = vm.getData(methodsObject[vm.testForm.method])
+        options.params = params
+      } else if (options.method === 'post') {
+        options.data = vm.getData(methodsObject[vm.testForm.method])
       }
-      axios({
-        url: vm.url,
-        data: data,
-        params,
-        method: options.method,
-        headers: vm.getHeader()
-      }).then(res => {
+      console.log('options', options)
+      axios(options).then(res => {
         vm.interfaceTestStr = res.data
         console.log('res: ', res)
       })
@@ -429,15 +422,13 @@ export default {
       let vm = this
       let DataArr = vm.request_columns_test
       if (Array.isArray(DataArr) && DataArr.length > 0) {
-        if (method === 'GET') {
+        if (method === 'get') {
           let identifiedData = {}
           DataArr.forEach(e => {
-            Object.defineProperty(identifiedData, e.field_name, {
-              value: e.result_val
-            })
+            identifiedData['' + e.field_name] = e.result_val
           })
           return identifiedData
-        } else if (method === 'POST') {
+        } else if (method === 'post') {
           let identifiedData = new FormData()
           DataArr.forEach(e => {
             identifiedData.append(e.field_name, e.result_val)
@@ -445,9 +436,9 @@ export default {
           return identifiedData
         }
       } else {
-        if (method === 'GET') {
+        if (method === 'get') {
           return {}
-        } else if (method === 'POST') {
+        } else if (method === 'post') {
           return new FormData()
         }
       }

@@ -9,6 +9,8 @@ import importDirective from '@/directive'
 import { directive as clickOutside } from 'v-click-outside-x'
 import './index.less'
 import '@/assets/icons/iconfont.css'
+import _ from 'lodash'
+Vue.prototype._ = _
 
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)
