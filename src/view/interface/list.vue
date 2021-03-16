@@ -490,6 +490,7 @@ export default {
   },
   activated () {
     let vm = this
+    vm.getList()
     getAll().then(response => {
       vm.apiGroup = response.data.data.list
     })

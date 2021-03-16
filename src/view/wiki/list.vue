@@ -14,7 +14,7 @@
 <template>
   <Layout style="height: 100%">
     <Menu mode="horizontal" theme="dark" active-name="list">
-      <div class="wiki-logo"></div>
+      <div class="wiki-logo" ></div>
       <div class="wiki-nav">
         <MenuItem name="list" to="/wiki/list">
           <Icon type="md-list-box" />
@@ -97,7 +97,7 @@
               <Tag v-if="api_detail.method === 2" color="primary">GET</Tag>
               <Tag v-if="api_detail.method === 0" color="warning">不限</Tag> <Alert class="url">{{url}}</Alert>
             </FormItem>
-            <FormItem label="请求头部">
+            <FormItem label="Headers">
               <Table border :columns="header_columns" :data="header_data"></Table>
             </FormItem>
             <FormItem label="请求参数">
@@ -140,7 +140,7 @@
             </FormItem>
             <FormItem label="请求头部">
               <Form :label-width="120" :label-position="left">
-                <FormItem v-for="(header, ri) in header_data_test" :key="ri" :label="header.field_name">
+                <FormItem v-for="(header, ri) in header_data_test" :key="ri" :label="header.field_name" style="margin-bottom: 10px;">
                   <Input v-model="header.result_val" placeholder="" style="width: 400px;"></Input>
                 </FormItem>
               </Form>
@@ -373,6 +373,10 @@ export default {
     this.getList()
   },
   methods: {
+    // 返回首页
+    handleBackHome () {
+      this.$router.push({ name: 'home' })
+    },
     sendRequset () {
       let vm = this
       let methodsObject = {
@@ -403,6 +407,12 @@ export default {
       axios(options).then(res => {
         vm.interfaceTestStr = res.data
         console.log('res: ', res)
+      }).catch(error => {
+        vm.interfaceTestStr = {
+          msg: '本次请求未能完成！',
+          error: error
+        }
+        console.log('error: ', error)
       })
     },
     getHeader () {
@@ -411,7 +421,7 @@ export default {
       if (Array.isArray(headArr) && headArr.length > 0) {
         let identifiedHeader = {}
         headArr.forEach(e => {
-          identifiedHeader[e.field_name] = e.result_val
+          e.result_val && (identifiedHeader[e.field_name] = e.result_val)
         })
         return identifiedHeader
       } else {
@@ -425,13 +435,13 @@ export default {
         if (method === 'get') {
           let identifiedData = {}
           DataArr.forEach(e => {
-            identifiedData['' + e.field_name] = e.result_val
+            e.result_val && (identifiedData['' + e.field_name] = e.result_val)
           })
           return identifiedData
         } else if (method === 'post') {
           let identifiedData = new FormData()
           DataArr.forEach(e => {
-            identifiedData.append(e.field_name, e.result_val)
+            e.result_val && (identifiedData.append(e.field_name, e.result_val))
           })
           return identifiedData
         }
@@ -486,13 +496,22 @@ export default {
           data_type: 2
         }]
         vm.testForm.method = res.apiList.method
-        vm.header_data_test = [{
-          is_must: res.apiList.access_token,
-          field_name: 'Access-Token',
-          info: 'APP认证秘钥【请在Header头里面传递】',
-          data_type: 2,
-          result_val: ''
-        }]
+        vm.header_data_test = [
+          {
+            is_must: res.apiList.access_token,
+            field_name: 'Access-Token',
+            info: 'APP认证秘钥【请在Header头里面传递】',
+            data_type: 2,
+            result_val: ''
+          },
+          {
+            is_must: res.apiList['x-auth-token'],
+            field_name: 'x-auth-token',
+            info: '用户token',
+            data_type: 2,
+            result_val: ''
+          }
+        ]
         vm.request_columns_test = res.request
         vm.interfaceTestStr = '等待中...'
       })
