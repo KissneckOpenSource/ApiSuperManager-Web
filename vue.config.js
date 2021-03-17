@@ -1,5 +1,5 @@
 const path = require('path')
-
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 const resolve = dir => {
   return path.join(__dirname, dir)
 }
@@ -26,7 +26,10 @@ module.exports = {
     externals: {
       vue: 'Vue',
       'vue-design': 'view-design'
-    }
+    },
+    plugins: [
+      new MonacoWebpackPlugin()
+    ]
   },
   productionSourceMap: false
 }

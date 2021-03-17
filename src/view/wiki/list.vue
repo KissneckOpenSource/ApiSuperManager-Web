@@ -6,15 +6,26 @@
     width: 90%;
     display: inline-block;
   }
-  /* .interface-test-url {
+  .editor-wrapper {
+    width: 100%;
+    height: 700px;
+  }
+  .interface-test-url {
     display: flex;
-    align-items: center;
-  } */
+    align-items: flex-start;
+    flex-direction: column;
+  }
 </style>
 <template>
   <Layout style="height: 100%">
     <Menu mode="horizontal" theme="dark" active-name="list">
-      <div class="wiki-logo" ></div>
+      <template v-if="!firstLoad">
+        <div class="wiki-logo" ><Spin size="large"></Spin></div>
+      </template>
+      <template v-else>
+        <div class="wiki-logo" v-if="appinfo.app_id == -1" @click="$router.push({name: 'home'})">首页</div>
+        <div class="wiki-logo" v-else>接口文档</div>
+      </template>
       <div class="wiki-nav">
         <MenuItem name="list" to="/wiki/list">
           <Icon type="md-list-box" />
@@ -88,8 +99,8 @@
       </div>
     </Content>
     <Footer class="wiki-footer-center">&copy; Powered  By <Tag color="primary">{{co}}</Tag></Footer>
-    <Drawer :title="api_detail.info" v-model="show_detail" width="820" :mask-closable="true" @on-close="closeDrawer">
-      <Tabs type="card">
+    <Drawer :title="api_detail.info" v-model="show_detail" width="820" :mask-closable="true" @on-close="closeDrawer" :draggable="true" @on-resize-width="handleResize">
+      <Tabs type="card" @on-click="handleClickTab($event)">
         <TabPane label="接口说明">
           <Form :label-width="80">
             <FormItem label="接口地址">
@@ -141,16 +152,21 @@
             <FormItem label="请求头部">
               <Form :label-width="120" :label-position="left">
                 <FormItem v-for="(header, ri) in header_data_test" :key="ri" :label="header.field_name" style="margin-bottom: 10px;">
-                  <Input v-model="header.result_val" placeholder="" style="width: 400px;"></Input>
+                  <Input v-model="header.result_val" placeholder="" style="width: calc(100% - 200px);"></Input>
                 </FormItem>
               </Form>
             </FormItem>
             <FormItem label="请求参数">
                 <Form :label-width="120">
                   <FormItem v-for="(header, ri) in request_columns_test" :key="ri" :label="header.field_name" style="margin-bottom: 10px;" :required="header.is_must === 1">
-                    <Input v-model="header.result_val" placeholder="" style="width: 400px;"></Input>
+                    <Input v-model="header.result_val" placeholder="" style="width: calc(100% - 200px);"></Input>
                   </FormItem>
                 </Form>
+            </FormItem>
+            <FormItem label="加密方式">
+                <Select v-model="testForm.crypto" style="width:300px; margin-bottom: 10px;">
+                  <Option :value="1">md5</Option>
+                </Select>
             </FormItem>
             <FormItem label="返回示例">
               <json-viewer :value="interfaceTestStr"></json-viewer>
@@ -158,11 +174,17 @@
             </FormItem>
           </Form>
         </TabPane>
+        <TabPane label="接口代码">
+          <div class="editor-wrapper" id="monaco" v-if="readyShowEditor">
+            <codeEditor :key="width"/>
+          </div>
+        </TabPane>
       </Tabs>
     </Drawer>
   </Layout>
 </template>
 <script>
+import codeEditor from '../../components/code-editor'
 import './list.less'
 import { apiGroup, detail, logout } from '@/api/wiki'
 import { setToken } from '@/libs/util'
@@ -173,10 +195,15 @@ export default {
   name: 'wiki',
   components: {
     ABackTop,
-    [JsonViewer.name]: JsonViewer
+    [JsonViewer.name]: JsonViewer,
+    codeEditor
   },
   data () {
     return {
+      width: 0,
+      firstLoad: false, // 第一次grouplist请求是否完成
+      readyShowEditor: false,
+      showEditor: false,
       show_detail: false,
       show_loading: false,
       app_id: sessionStorage.getItem('ApiAdmin_AppInfo'),
@@ -360,6 +387,7 @@ export default {
       detail_info: {},
       api_detail: {},
       header_data: [],
+      appinfo: {},
       co: '',
       testForm: {
         method: ''
@@ -372,7 +400,17 @@ export default {
   created () {
     this.getList()
   },
+  mounted () {
+  },
   methods: {
+    handleResize (e) {
+      this.width = e
+    },
+    handleClickTab (e) {
+      if (e === 2) {
+        this.readyShowEditor = true
+      }
+    },
     // 返回首页
     handleBackHome () {
       this.$router.push({ name: 'home' })
@@ -468,7 +506,9 @@ export default {
       let vm = this
       apiGroup().then(response => {
         vm.groupInfo = response.data.data.data
+        vm.appinfo = response.data.data.appinfo
         vm.co = response.data.data.co
+        vm.firstLoad = true
       })
     },
     closeDrawer () {
