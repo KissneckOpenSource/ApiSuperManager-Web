@@ -24,12 +24,7 @@ export default {
     }
   },
   methods: {
-    ok () {
-      this.$Message.info('Clicked ok')
-    },
-    cancel () {
-      this.$Message.info('Clicked cancel')
-    },
+    // 初始化编辑器
     initEditor () {
     /* eslint-disable */
     monaco.editor.create(document.getElementById(`code-editor-[${this.date}]`), {

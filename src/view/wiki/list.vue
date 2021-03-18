@@ -184,6 +184,7 @@
   </Layout>
 </template>
 <script>
+// monaco editor
 import codeEditor from '../../components/code-editor'
 import './list.less'
 import { apiGroup, detail, logout } from '@/api/wiki'
@@ -202,10 +203,9 @@ export default {
     return {
       width: 0,
       firstLoad: false, // 第一次grouplist请求是否完成
-      readyShowEditor: false,
-      showEditor: false,
-      show_detail: false,
-      show_loading: false,
+      readyShowEditor: false, // 是否可以渲染编辑器
+      show_detail: false, // 是否展示右侧API详细
+      show_loading: false, // 是否在拉取WIKI
       app_id: sessionStorage.getItem('ApiAdmin_AppInfo'),
       code: '',
       url: '',
