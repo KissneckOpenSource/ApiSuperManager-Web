@@ -34,6 +34,19 @@ export const detail = (params) => {
 }
 
 /**
+ * 更新接口代码
+ * @param data
+ * @returns {wx.RequestTask | never}
+ */
+export const updateCode = (data) => {
+  return axios.request({
+    url: 'Api/detail',
+    method: 'post',
+    data
+  })
+}
+
+/**
  * 用户登录
  * @param data
  * @returns {wx.RequestTask | never}

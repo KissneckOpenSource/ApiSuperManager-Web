@@ -176,7 +176,7 @@
         </TabPane>
         <TabPane label="接口代码">
           <div class="editor-wrapper" id="monaco" v-if="readyShowEditor">
-            <codeEditor :key="width"/>
+            <codeEditor :key="width" :value="code_php" @updateCode="updateCode" @saveCode="saveCode"/>
           </div>
         </TabPane>
       </Tabs>
@@ -187,7 +187,7 @@
 // monaco editor
 import codeEditor from '../../components/code-editor'
 import './list.less'
-import { apiGroup, detail, logout } from '@/api/wiki'
+import { apiGroup, detail, logout, updateCode } from '@/api/wiki'
 import { setToken } from '@/libs/util'
 import ABackTop from '@/components/main/components/a-back-top'
 import JsonViewer from 'vue-json-viewer'
@@ -388,6 +388,7 @@ export default {
       api_detail: {},
       header_data: [],
       appinfo: {},
+      code_php: '',
       co: '',
       testForm: {
         method: ''
@@ -403,6 +404,18 @@ export default {
   mounted () {
   },
   methods: {
+    // 保存代码
+    saveCode (code) {
+      this.code_php = code
+      let data = new FormData()
+      data.append('code', code)
+      updateCode(data).then(() => {
+      })
+    },
+    // 更新代码
+    updateCode (code) {
+      this.code_php = code
+    },
     handleResize (e) {
       this.width = e
     },
@@ -521,6 +534,7 @@ export default {
         hash: hash
       }).then(response => {
         let res = response.data.data
+        vm.code_php = res.code_php
         vm.detail_info = res
         vm.show_detail = true
         vm.show_loading = false

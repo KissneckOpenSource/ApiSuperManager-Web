@@ -20,48 +20,31 @@ export default {
   },
   data () {
     return {
-      date: new Date().getTime()
+      date: new Date().getTime(),
+      monacoInstance: null
     }
   },
   methods: {
     // 初始化编辑器
     initEditor () {
     /* eslint-disable */
-    monaco.editor.create(document.getElementById(`code-editor-[${this.date}]`), {
-      value: 
-`<?php
-  /**
-   * 后台隐私协议设置
-   * @return \think\Response
-   * @throws \think\db\exception\DataNotFoundException
-   * @throws \think\db\exception\DbException
-   * @throws \think\db\exception\ModelNotFoundException
-   */
-  public function userPrivacy()
-  {
-      $privacy_agreement = $this->request->param("privacy_agreement");
-      if(empty($privacy_agreement)){
-          return $this->buildSuccess(['privacy_agreement' => help::get_help()[3]['des']]);
-      }
-
-      (new help())
-          ->where(['type' => 3])
-          ->save(['description' => $privacy_agreement]);
-      Cache::delete('cache_help');
-      return $this->buildSuccess();
-  }
-?>`
-        ,
+      this.monacoInstance = monaco.editor.create(document.getElementById(`code-editor-[${this.date}]`), {
+        value: this.value,
         language: 'php', //语言
         theme: 'vs-dark', //主题
         autoIndent: true //自动缩进
+      })
+      this.monacoInstance.onDidChangeModelContent((event) => {
+        const newValue = this.monacoInstance.getValue();
+        this.$emit('updateCode',newValue)
+        console.log(newValue)
       })
     },
     customKeys(){
       document.getElementById(`code-editor-[${this.date}]`).addEventListener('keydown', e => {
       if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)){
           e.preventDefault();
-          this.$Message.success('保存成功！');
+          this.$emit("saveCode",this.monacoInstance.getValue())
         }
       });
     }
