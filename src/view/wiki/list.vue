@@ -176,7 +176,7 @@
         </TabPane>
         <TabPane label="接口代码">
           <div class="editor-wrapper" id="monaco" v-if="readyShowEditor">
-            <codeEditor :key="width" :value="code_php" @updateCode="updateCode" @saveCode="saveCode"/>
+            <codeEditor :key="width + updateCounter" :value="code_php" @updateCode="updateCode" @saveCode="saveCode"/>
           </div>
         </TabPane>
       </Tabs>
@@ -395,7 +395,8 @@ export default {
       }, // 接口测试数据
       header_data_test: [], // 接口测试头部
       request_columns_test: [], // 接口测试请求参数
-      interfaceTestStr: '等待中...' // 接口测试返回参数
+      interfaceTestStr: '等待中...', // 接口测试返回参数
+      updateCounter: 0 // 代码更新
     }
   },
   created () {
@@ -535,6 +536,7 @@ export default {
       }).then(response => {
         let res = response.data.data
         vm.code_php = res.code_php
+        this.updateCounter++
         vm.detail_info = res
         vm.show_detail = true
         vm.show_loading = false
