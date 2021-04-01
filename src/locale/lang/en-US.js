@@ -17,6 +17,7 @@ export default {
   refresh_button: 'Refresh',
   delete_button: 'Delete',
   edit_button: 'Edit',
+  create_file: '创建代码',
   open_choose: 'Open',
   close_choose: 'Close',
   show_choose: 'Show',

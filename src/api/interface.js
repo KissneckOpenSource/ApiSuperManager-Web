@@ -98,3 +98,14 @@ export const getAppList = (params) => {
     params: params
   })
 }
+
+/**
+ * 创建文件
+ */
+export const createFile = (data) => {
+  return axios.request({
+    url: 'InterfaceList/createFunc',
+    method: 'post',
+    data
+  })
+}

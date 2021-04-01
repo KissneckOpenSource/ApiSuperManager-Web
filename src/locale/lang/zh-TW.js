@@ -17,6 +17,7 @@ export default {
   refresh_button: '刷新',
   delete_button: '刪除',
   edit_button: '編輯',
+  create_file: '创建代码',
   open_choose: '啟用',
   close_choose: '禁用',
   show_choose: '顯示',

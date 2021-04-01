@@ -19,6 +19,11 @@
               </Select>
             </FormItem>
             <FormItem class="margin-bottom-0">
+              <Select v-model="searchConf.way_type" clearable placeholder="请选择继承目标" style="width:200px">
+                <Option v-for="(v, i) in typeGroup" :value="v.value" :kk="i" :key="v.value"> {{v.name}}</Option>
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
               <Select v-model="searchConf.app_group_id" clearable placeholder="请选择应用" style="width:200px">
                 <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group"> {{v.app_name}}</Option>
               </Select>
@@ -79,6 +84,11 @@
         <FormItem label="接口分组" prop="group_hash">
           <Select v-model="formItem.group_hash" style="width:200px">
             <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
+          </Select>
+        </FormItem>
+        <FormItem label="继承" prop="way_type">
+          <Select v-model="searchConf.way_type" clearable placeholder="请选择继承目标" style="width:200px">
+            <Option v-for="(v, i) in typeGroup" :value="v.value" :kk="i" :key="v.value"> {{v.name}}</Option>
           </Select>
         </FormItem>
         <FormItem label="请求方式" prop="method">
@@ -170,7 +180,8 @@
   </div>
 </template>
 <script>
-import { getList, changeStatus, add, edit, del, getHash, refresh, getAppList } from '@/api/interface'
+
+import { getList, changeStatus, add, edit, del, getHash, refresh, getAppList, createFile } from '@/api/interface'
 import { getAll } from '@/api/interface-group'
 
 const editButton = (vm, h, currentRow, index) => {
@@ -230,6 +241,46 @@ const deleteButton = (vm, h, currentRow, index) => {
           loading: currentRow.isDeleting
         }
       }, vm.$t('delete_button'))
+    ])
+  }
+}
+const createButton = (vm, h, currentRow, index) => {
+  /* eslint-disable */
+  if (vm.buttonShow.create) {
+    return h('Poptip', {
+      props: {
+        confirm: true,
+        title: '确认后将为您生成对应的方法代码模板，如果控制器不存在会为您生成对应的控制器，确定要继续吗? ',
+        transfer: true
+      },
+      on: {
+        'on-ok': () => {
+          console.log('currentRow: ', currentRow);
+          let data = {
+            id: currentRow.id,
+            type: 1
+          }
+          createFile(data).then(response => {
+            currentRow.loading = false
+            if(response.data.code === 1){
+              vm.$Message.success(response.data.msg)
+            }else{
+              vm.$Message.warning(response.data.msg)
+            }
+          })
+        }
+      }
+    }, [
+      h('Button', {
+        style: {
+          margin: '0 5px'
+        },
+        props: {
+          type: 'success',
+          placement: 'top',
+          loading: currentRow.isDeleting
+        }
+      }, vm.$t('create_file'))
     ])
   }
 }
@@ -397,9 +448,10 @@ export default {
         {
           title: '操作',
           align: 'center',
-          minWidth: 375,
+          minWidth: 500,
           render: (h, params) => {
             return h('div', [
+              createButton(this, h, params.row, params.index),
               editButton(this, h, params.row, params.index),
               requestButton(this, h, params.row, params.index),
               responseButton(this, h, params.row, params.index),
@@ -410,6 +462,16 @@ export default {
       ],
       tableData: [],
       apiGroup: [],
+      typeGroup: [
+        {
+          name: 'Base（有验证）',
+          value: 1
+        },
+        {
+          name: '其他（无验证类）',
+          value: 2
+        }
+      ],
       tableShow: {
         currentPage: 1,
         pageSize: 10,
@@ -420,7 +482,8 @@ export default {
         keywords: '',
         status: '',
         group_hash: '',
-        app_group_id: ''
+        app_group_id: '',
+        way_type: 1
       },
       modalSetting: {
         show: false,
@@ -456,6 +519,7 @@ export default {
         request: true,
         response: true,
         del: true,
+        create: true,
         changeStatus: true
       },
       listLoading: false,
