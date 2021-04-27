@@ -81,6 +81,9 @@
         <FormItem label="真实类库" prop="api_class">
           <Input v-model="formItem.api_class" placeholder="请输入真实类库"></Input>
         </FormItem>
+        <FormItem label="接口说明" prop="des">
+          <Input v-model="formItem.des" placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"></Input>
+        </FormItem>
         <FormItem label="接口分组" prop="group_hash">
           <Select v-model="formItem.group_hash" style="width:200px">
             <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
@@ -206,6 +209,7 @@ const editButton = (vm, h, currentRow, index) => {
           vm.formItem.hash_type = currentRow.hash_type
           vm.formItem.app_group_hash = currentRow.app_group_hash // 应用hash
           vm.formItem.app_group_id = currentRow.app_group_id
+          vm.formItem.des = currentRow.des
           vm.modalSetting.show = true
           vm.modalSetting.index = index
         }
@@ -365,11 +369,17 @@ export default {
           width: 230
         },
         {
-          title: '接口映射',
+          title: '接口说明',
           align: 'center',
-          key: 'hash',
+          key: 'des',
           width: 140
         },
+        // {
+        //   title: '接口映射',
+        //   align: 'center',
+        //   key: 'hash',
+        //   width: 140
+        // },
         {
           title: '接口分组',
           align: 'center',
@@ -493,6 +503,7 @@ export default {
       formItem: {
         api_class: '',
         info: '',
+        des: '',//接口描述
         group_hash: 'default',
         method: 2,
         hash_type: 2,
@@ -506,6 +517,9 @@ export default {
       ruleValidate: {
         api_class: [
           { required: true, message: '真实类库不能为空', trigger: 'blur' }
+        ],
+        des: [
+          { required: true, message: '接口说明不能为空', trigger: 'blur' }
         ],
         info: [
           { required: true, message: '接口名称不能为空', trigger: 'blur' }

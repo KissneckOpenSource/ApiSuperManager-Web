@@ -70,22 +70,46 @@
                 <Alert type="warning" v-if="api_item.method === 0">
                   <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
                   <template slot="desc">
-                    <Tag color="warning">不限</Tag>
-                    {{api_item.info}}
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="warning">不限</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
                   </template>
                 </Alert>
                 <Alert v-if="api_item.method === 2">
                   <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
                   <template slot="desc">
-                    <Tag color="primary">GET</Tag>
-                    {{api_item.info}}
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="warning">不限</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
                   </template>
                 </Alert>
                 <Alert type="success" v-if="api_item.method === 1">
                   <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
                   <template slot="desc">
-                    <Tag color="success">POST</Tag>
-                    {{api_item.info}}
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="warning">不限</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
                   </template>
                 </Alert>
               </span>
@@ -107,6 +131,9 @@
               <Tag v-if="api_detail.method === 1" color="success">POST</Tag>
               <Tag v-if="api_detail.method === 2" color="primary">GET</Tag>
               <Tag v-if="api_detail.method === 0" color="warning">不限</Tag> <Alert class="url">{{url}}</Alert>
+            </FormItem>
+            <FormItem label="接口说明">
+              <Alert type="success">{{api_detail.des || '无'}}</Alert>
             </FormItem>
             <FormItem label="Headers">
               <Table border :columns="header_columns" :data="header_data"></Table>
@@ -139,13 +166,25 @@
             style="position:absolute;height: 100%; width:100%;"
           ></iframe> -->
           <Form :label-width="80">
-            <FormItem label="接口地址">
+            <FormItem label="请求方式">
               <div class="interface-test-url">
                 <Select v-model="testForm.method" style="width:300px; margin-bottom: 10px;">
                   <Option :value="2">GET</Option>
                   <Option :value="1">POST</Option>
                 </Select>
-                <Alert class="url">{{url}}</Alert>
+              </div>
+            </FormItem>
+            <FormItem label="填写前缀">
+              <div class="interface-test-url">
+                <!-- <Alert class="url">{{url}}</Alert> -->
+                <Alert class="url"><Input v-model="requestURLPrefix" placeholder="" style="width: calc(100% - 200px);"></Input>
+                {{requestURL}}</Alert>
+              </div>
+            </FormItem>
+            <FormItem label="请求地址">
+              <div class="interface-test-url">
+                <!-- <Alert class="url">{{url}}</Alert> -->
+                <Alert class="url">{{requestURLPrefix + requestURL}}</Alert>
                 <Button type="primary" @click="sendRequset">发送请求</Button>
               </div>
             </FormItem>
@@ -165,7 +204,8 @@
             </FormItem>
             <FormItem label="加密方式">
                 <Select v-model="testForm.crypto" style="width:300px; margin-bottom: 10px;">
-                  <Option :value="1">md5</Option>
+                  <Option :value="1">无</Option>
+                  <Option :value="2">md5</Option>
                 </Select>
             </FormItem>
             <FormItem label="返回示例">
@@ -209,6 +249,8 @@ export default {
       app_id: sessionStorage.getItem('ApiAdmin_AppInfo'),
       code: '',
       url: '',
+      requestURL: '',
+      requestURLPrefix: '',
       groupInfo: [],
       header_columns: [
         {
@@ -446,7 +488,7 @@ export default {
       console.log('请求参数：', vm.getData(methodsObject[vm.testForm.method]))
       let options = {
         method: methodsObject[vm.testForm.method],
-        url: vm.url,
+        url: vm.requestURLPrefix + vm.requestURL,
         headers: vm.getHeader()
       }
       if (options.method === 'get') {
@@ -541,6 +583,7 @@ export default {
         vm.show_detail = true
         vm.show_loading = false
         vm.url = res.url
+        vm.requestURL = res.apiList.api_class
         vm.api_detail = res.apiList
         if (res.apiList.return_str) {
           vm.code = JSON.parse(res.apiList.return_str)
