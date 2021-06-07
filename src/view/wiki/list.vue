@@ -122,7 +122,8 @@
         <ABackTop :height="100" :bottom="80" :right="60" container=".wiki-layout-con"></ABackTop>
       </div>
     </Content>
-    <Footer class="wiki-footer-center">&copy; Powered  By <Tag color="primary">{{co}}</Tag></Footer>
+    <!-- <Footer class="wiki-footer-center">&copy; Powered  By <Tag color="primary">{{co}}</Tag></Footer> -->
+    <Footer class="wiki-footer-center"></Footer>
     <Drawer :title="api_detail.info" v-model="show_detail" width="820" :mask-closable="true" @on-close="closeDrawer" :draggable="true" @on-resize-width="handleResize">
       <Tabs type="card" @on-click="handleClickTab($event)">
         <TabPane label="接口说明">

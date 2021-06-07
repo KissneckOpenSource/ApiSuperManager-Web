@@ -40,7 +40,7 @@
           </div>
           <div class="margin-top-15" style="text-align: center">
             <Page :total="tableShow.listCount" :current="tableShow.currentPage"
-                  :page-size="tableShow.pageSize" @on-change="changePage"
+                  :page-size="tableShow.pageSize" @on-change="changePage" :page-size-opts="[20, 30, 40, 50]"
                   @on-page-size-change="changeSize" show-elevator show-sizer show-total></Page>
           </div>
         </Card>
@@ -204,7 +204,7 @@ export default {
       tableData: [],
       tableShow: {
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 40,
         listCount: 0
       },
       searchConf: {

@@ -35,7 +35,8 @@
         <ABackTop :height="100" :bottom="80" :right="60" container=".wiki-error-code-layout-con"></ABackTop>
       </div>
     </Content>
-    <Footer class="wiki-footer-center">&copy; Powered  By <Tag color="primary">{{co}}</Tag></Footer>
+    <!-- <Footer class="wiki-footer-center">&copy; Powered  By <Tag color="primary">{{co}}</Tag></Footer> -->
+    <Footer class="wiki-footer-center"></Footer>
   </Layout>
 </template>
 <script>
