@@ -82,27 +82,12 @@
                     </div>
                   </template>
                 </Alert>
-                <Alert v-if="api_item.method === 2">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
-                  <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
-                      <div>
-                        <Tag color="warning">不限</Tag>
-                        {{api_item.info}}
-                      </div>
-                      <div>
-                        <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
-                      </div>
-                    </div>
-                  </template>
-                </Alert>
                 <Alert type="success" v-if="api_item.method === 1">
                   <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
                   <template slot="desc">
                     <div style="display:flex;flex-direction:column">
                       <div>
-                        <Tag color="warning">不限</Tag>
+                        <Tag color="success">POST</Tag>
                         {{api_item.info}}
                       </div>
                       <div>
@@ -112,6 +97,67 @@
                     </div>
                   </template>
                 </Alert>
+                <Alert v-if="api_item.method === 2">
+                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <template slot="desc">
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="primary">GET</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
+                  </template>
+                </Alert>
+                <Alert v-if="api_item.method === 3">
+                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <template slot="desc">
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="green">PUT</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
+                  </template>
+                </Alert>
+                <Alert v-if="api_item.method === 4">
+                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <template slot="desc">
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="error">DELETE</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
+                  </template>
+                </Alert>
+                <Alert v-if="api_item.method === 5">
+                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <template slot="desc">
+                    <div style="display:flex;flex-direction:column">
+                      <div>
+                        <Tag color="gold">PATCH</Tag>
+                        {{api_item.info}}
+                      </div>
+                      <div>
+                        <Tag color="red">接口说明</Tag>
+                        {{api_item.des || '无'}}
+                      </div>
+                    </div>
+                  </template>
+                </Alert>
+
               </span>
             </p>
             <p slot="content" v-else style="text-align: center">
@@ -131,7 +177,10 @@
             <FormItem label="接口地址">
               <Tag v-if="api_detail.method === 1" color="success">POST</Tag>
               <Tag v-if="api_detail.method === 2" color="primary">GET</Tag>
-              <Tag v-if="api_detail.method === 0" color="warning">不限</Tag> <Alert class="url">{{url}}</Alert>
+              <Tag v-if="api_detail.method === 3" color="green">PUT</Tag>
+              <Tag v-if="api_detail.method === 4" color="error">DELETE</Tag>
+              <Tag v-if="api_detail.method === 5" color="gold">PATCH</Tag>
+              <Tag v-if="api_detail.method === 0" color="warning">不限</Tag> <Alert class="url">······{{api_detail.api_class}}</Alert>
             </FormItem>
             <FormItem label="接口说明">
               <Alert type="success">{{api_detail.des || '无'}}</Alert>
@@ -172,14 +221,17 @@
                 <Select v-model="testForm.method" style="width:300px; margin-bottom: 10px;">
                   <Option :value="2">GET</Option>
                   <Option :value="1">POST</Option>
+                  <Option :value="3">PUT</Option>
+                  <Option :value="4">DELETE</Option>
+                  <Option :value="5">PATCH</Option>
                 </Select>
               </div>
             </FormItem>
-            <FormItem label="填写前缀">
+            <FormItem label="填写地址">
               <div class="interface-test-url">
                 <!-- <Alert class="url">{{url}}</Alert> -->
-                <Alert class="url"><Input v-model="requestURLPrefix" placeholder="" style="width: calc(100% - 200px);"></Input>
-                {{requestURL}}</Alert>
+                <Alert class="url"><Input v-model="requestURLPrefix" placeholder="" style="width: calc(50% - 100px);"></Input>
+                {{requestURL}}<Input v-model="requestURLSuffix" placeholder="" style="width: calc(50% - 100px);"></Input></Alert>
               </div>
             </FormItem>
             <FormItem label="请求地址">
@@ -252,6 +304,7 @@ export default {
       url: '',
       requestURL: '',
       requestURLPrefix: '',
+      requestURLSuffix: '',
       groupInfo: [],
       header_columns: [
         {
@@ -476,7 +529,10 @@ export default {
       let vm = this
       let methodsObject = {
         2: 'get',
-        1: 'post'
+        1: 'post',
+        3: 'put',
+        4: 'delete',
+        5: 'patch'
       }
       if (!methodsObject[vm.testForm.method]) {
         vm.$Notice.warning({
@@ -496,6 +552,13 @@ export default {
         let params = vm.getData(methodsObject[vm.testForm.method])
         options.params = params
       } else if (options.method === 'post') {
+        options.data = vm.getData(methodsObject[vm.testForm.method])
+      } else if (options.method === 'put') {
+        options.data = vm.getData(methodsObject[vm.testForm.method])
+      } else if (options.method === 'delete') {
+        let params = vm.getData(methodsObject[vm.testForm.method])
+        options.params = params
+      } else if (options.method === 'patch') {
         options.data = vm.getData(methodsObject[vm.testForm.method])
       }
       console.log('options', options)
@@ -527,13 +590,13 @@ export default {
       let vm = this
       let DataArr = vm.request_columns_test
       if (Array.isArray(DataArr) && DataArr.length > 0) {
-        if (method === 'get') {
+        if (method === 'get' || method === 'delete') {
           let identifiedData = {}
           DataArr.forEach(e => {
             e.result_val && (identifiedData['' + e.field_name] = e.result_val)
           })
           return identifiedData
-        } else if (method === 'post') {
+        } else if (method === 'post' || method === 'put' || method === 'patch') {
           let identifiedData = new FormData()
           DataArr.forEach(e => {
             e.result_val && (identifiedData.append(e.field_name, e.result_val))

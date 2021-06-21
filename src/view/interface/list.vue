@@ -99,6 +99,9 @@
             <Option :value="0" :key="0"> 不限</Option>
             <Option :value="1" :key="1"> POST</Option>
             <Option :value="2" :key="2"> GET</Option>
+            <Option :value="3" :key="3"> PUT</Option>
+            <Option :value="4" :key="4"> DELETE</Option>
+            <Option :value="5" :key="5"> PATCH</Option>
           </Select>
           <Tooltip placement="right" max-width="800">
             <Icon type="md-help-circle" class="margin-left-5" color="#2d8cf0" size="20"/>
@@ -411,6 +414,30 @@ export default {
                       color: 'primary'
                     }
                   }, 'GET')
+                case 3:
+                return h('Tag', {
+                  attrs: {
+                    color: 'green'
+                  }
+                }, 'PUT')
+                case 4:
+                return h('Tag', {
+                  attrs: {
+                    color: 'error'
+                  }
+                }, 'DELETE')
+                case 5:
+                return h('Tag', {
+                  attrs: {
+                    color: 'gold'
+                  }
+                }, 'PATCH')
+                // case 5:
+                // return h('Tag', {
+                //   attrs: {
+                //     color: 'blue'
+                //   }
+                // }, 'PATCH')
                 case 0:
                   return h('Tag', {
                     attrs: {
