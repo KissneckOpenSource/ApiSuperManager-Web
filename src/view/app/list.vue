@@ -78,6 +78,9 @@
         <FormItem label="应用域名" prop="app_url">
           <Input v-model="formItem.app_url" placeholder="请输入应用域名"></Input>
         </FormItem>
+        <FormItem label="仓库地址(SSH)" prop="git_path">
+          <Input v-model="formItem.git_path" placeholder="请输入仓库地址(SSH)"></Input>
+        </FormItem>
         <FormItem label="应用描述" prop="app_info">
           <Input v-model="formItem.app_info" type="textarea"></Input>
         </FormItem>
@@ -320,7 +323,8 @@ export default {
         app_api: {},
         app_group: 'default',
         id: 0,
-        app_url: ''
+        app_url: '',
+        git_path: ''
       },
       ruleValidate: {
         app_name: [
@@ -328,6 +332,9 @@ export default {
         ],
         app_url: [
           { required: true, message: '应用域名不能为空', trigger: 'blur' }
+        ],
+        git_path: [
+          { required: true, message: '仓库地址不能为空', trigger: 'blur' }
         ]
       },
       checkAllStatus: {},

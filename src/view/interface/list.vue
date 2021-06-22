@@ -392,7 +392,7 @@ export default {
         {
           title: '请求方式',
           align: 'center',
-          width: 95,
+          width: 105,
           render: (h, params) => {
             if (params.row.isTest === 1) {
               return h('tag', {
