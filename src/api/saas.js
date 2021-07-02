@@ -69,7 +69,7 @@ export const changeStatus = (status, hash) => {
  */
 export const add = (data) => {
   return axios.request({
-    url: 'InterfaceList/add',
+    url: 'SaasDoc/add',
     method: 'post',
     data
   })
@@ -107,5 +107,17 @@ export const createFile = (data) => {
     url: 'InterfaceList/createFunc',
     method: 'post',
     data
+  })
+}
+
+/**
+ * 获取列表【筛选项】
+ * @param data
+ * @returns {wx.RequestTask | never}
+ */
+ export const getAll = () => {
+  return axios.request({
+    url: 'SaasDoc/group',
+    method: 'get'
   })
 }

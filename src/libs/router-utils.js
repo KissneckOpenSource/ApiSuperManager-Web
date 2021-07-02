@@ -31,7 +31,8 @@ export const filterAsyncRouter = (asyncRouterMap) => {
         if (route.component === '') {
           accessedRouter.component = Main
         } else {
-          if (route.component === 'interface/request' || route.component === 'interface/response') {
+          let allowsRoute = ['interface/request','interface/response','saas/request','saas/response']
+          if (allowsRoute.includes(route.component)) {
             accessedRouter.meta.hideInMenu = true
           }
           accessedRouter.component = lazyLoading(route.component)

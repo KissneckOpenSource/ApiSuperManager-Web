@@ -81,9 +81,9 @@
               @click.native="handleAppChange(v)"> {{v.app_name}}</Option>
           </Select>
         </FormItem> -->
-        <!-- <FormItem label="真实类库" prop="api_class">
-          <Input v-model="formItem.api_class" placeholder="请输入真实类库"></Input>
-        </FormItem> -->
+        <FormItem label="请求地址（完整）" prop="api_class">
+          <Input v-model="formItem.api_class" placeholder="请输入请求地址"></Input>
+        </FormItem>
         <FormItem label="接口说明" prop="des">
           <Input v-model="formItem.des" placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"></Input>
         </FormItem>
@@ -200,8 +200,8 @@ import {
   refresh,
   getAppList,
   createFile,
-} from "@/api/sass";
-import { getAll } from "@/api/interface-group";
+} from "@/api/saas";
+import { getAll } from "@/api/saas";
 
 const editButton = (vm, h, currentRow, index) => {
   if (vm.buttonShow.edit) {
@@ -379,7 +379,7 @@ const responseButton = (vm, h, currentRow, index) => {
 };
 
 export default {
-  name: "interface_list",
+  name: "saas_list",
   data() {
     return {
       chooseAppModal: false,
@@ -408,7 +408,7 @@ export default {
           key: "info",
         },
         {
-          title: "真实类库",
+          title: "请求地址",
           align: "center",
           key: "api_class",
           width: 230,
@@ -571,7 +571,7 @@ export default {
           render: (h, params) => {
             return h("div", [
               // createButton(this, h, params.row, params.index),
-              // editButton(this, h, params.row, params.index),
+              editButton(this, h, params.row, params.index),
               requestButton(this, h, params.row, params.index),
               responseButton(this, h, params.row, params.index),
               // deleteButton(this, h, params.row, params.index),
@@ -625,7 +625,7 @@ export default {
       },
       ruleValidate: {
         api_class: [
-          { required: true, message: "真实类库不能为空", trigger: "blur" },
+          { required: true, message: "请求地址不能为空", trigger: "blur" },
         ],
         des: [{ required: true, message: "接口说明不能为空", trigger: "blur" }],
         info: [
@@ -667,7 +667,7 @@ export default {
       vm.buttonShow.request = res;
     });
     getAll().then((response) => {
-      vm.apiGroup = response.data.data.list;
+      vm.apiGroup = response.data.data;
     });
     getAppList().then((response) => {
       vm.appList = response.data.data;
@@ -677,7 +677,7 @@ export default {
     let vm = this;
     vm.getList();
     getAll().then((response) => {
-      vm.apiGroup = response.data.data.list;
+      vm.apiGroup = response.data.data;
     });
     getAppList().then((response) => {
       vm.appList = response.data.data;
