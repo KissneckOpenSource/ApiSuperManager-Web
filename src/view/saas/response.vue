@@ -47,9 +47,9 @@
           <Input disabled style="width: 300px" v-model="formItem.defaults"></Input>
           <Tag color="error" class="margin-left-5"> 仅在字段非必填的情况下生效 </Tag>
         </FormItem>
-        <FormItem label="规则细节" prop="range">
+        <!-- <FormItem label="规则细节" prop="range">
           <Input disabled v-model="formItem.range" type="textarea" placeholder="请输入符合要求的JSON字符串"></Input>
-        </FormItem>
+        </FormItem> -->
         <FormItem label="字段说明" prop="info">
           <Input v-model="formItem.info" type="textarea" placeholder="请输入字段描述"></Input>
         </FormItem>
@@ -78,7 +78,7 @@
   </div>
 </template>
 <script>
-import { getResponse, edit, del, upJson } from "@/api/fields";
+import { getResponse, edit, del, upJson } from "@/api/saas-fields";
 
 const editButton = (vm, h, currentRow, index) => {
   return h(

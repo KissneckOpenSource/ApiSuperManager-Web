@@ -13,11 +13,11 @@
               <Option :value="0">禁用</Option>
             </Select>
           </FormItem>
-          <FormItem class="margin-bottom-0">
+          <!-- <FormItem class="margin-bottom-0">
             <Select v-model="searchConf.app_hash" clearable placeholder="请选择应用分组" style="width:200px">
               <Option v-for="(v, i) in appGroup" :value="v.hash" :kk="i" :key="v.hash">{{v.name}}</Option>
             </Select>
-          </FormItem>
+          </FormItem> -->
           <FormItem class="margin-bottom-0">
             <Select v-model="searchConf.type" clearable placeholder="请选择类别" style="width:120px">
               <Option :value="1">接口组标识</Option>
@@ -61,7 +61,7 @@
         <FormItem label="组名称" prop="name">
           <Input v-model="formItem.name" placeholder="请输入接口组名称"></Input>
         </FormItem>
-        <FormItem label="组头像" prop="image">
+        <!-- <FormItem label="组头像" prop="image">
           <div class="demo-upload-list" v-if="formItem.image">
             <img :src="formItem.image">
             <div class="demo-upload-list-cover">
@@ -77,7 +77,7 @@
               <Icon type="md-camera" size="20"></Icon>
             </div>
           </Upload>
-        </FormItem>
+        </FormItem> -->
         <FormItem label="组标识" prop="hash">
           <Input style="width: 300px" disabled v-model="formItem.hash"></Input>
           <Tag color="error" class="margin-left-5">系统自动生成，不允许修改</Tag>
@@ -150,7 +150,7 @@ const deleteButton = (vm, h, currentRow, index) => {
         },
         on: {
           "on-ok": () => {
-            del(currentRow.hash).then((response) => {
+            del(currentRow.id).then((response) => {
               vm.tableData.splice(index, 1);
               vm.$Message.success(response.data.msg);
             });
@@ -407,7 +407,7 @@ export default {
         status: vm.searchConf.status,
         app_hash: vm.searchConf.app_hash,
       }).then((response) => {
-        vm.tableData = response.data.data;
+        vm.tableData = response.data.data.list;
         vm.tableShow.listCount = response.data.data.count;
         vm.listLoading = false;
       });

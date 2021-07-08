@@ -17,7 +17,8 @@ const BASE_URL = process.env.NODE_ENV === 'production'
   : '/'
 
 module.exports = {
-  publicPath: BASE_URL,
+  // publicPath: BASE_URL,
+  publicPath: './',
   lintOnSave: false,
   chainWebpack: config => {
     config.resolve.alias.set('@', resolve('src')).set('_c', resolve('src/components'))

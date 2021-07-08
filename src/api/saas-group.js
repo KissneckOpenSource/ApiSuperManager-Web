@@ -6,18 +6,18 @@ import axios from '@/libs/api.request'
  */
 export const getList = (params) => {
   return axios.request({
-    url: 'SaasDoc/group',
+    url: 'SaasDoc/saasGroupIndex',
     method: 'get',
     params: params
   })
 }
 
-export const del = (hash) => {
+export const del = (id) => {
   return axios.request({
-    url: 'InterfaceGroup/del',
+    url: 'SaasDoc/saasGroupDel',
     method: 'get',
-    params: {
-      hash: hash
+    params: { 
+      id: id
     }
   })
 }
@@ -58,7 +58,7 @@ export const getAll = () => {
  */
 export const add = (data) => {
   return axios.request({
-    url: 'InterfaceGroup/add',
+    url: 'SaasDoc/saasGroupAdd',
     method: 'post',
     data
   })

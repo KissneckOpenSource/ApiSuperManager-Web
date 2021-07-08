@@ -105,6 +105,15 @@ export const otherRouter = [
     component: () => import('@/view/wiki/list.vue')
   },
   {
+    path: '/saas-wiki/list',
+    name: 'saas-wiki_list',
+    meta: {
+      title: 'SAAS文档列表',
+      hideInMenu: true
+    },
+    component: () => import('@/view/saas-wiki/list.vue')
+  },
+  {
     path: '/wiki/error',
     name: 'wiki_error',
     meta: {

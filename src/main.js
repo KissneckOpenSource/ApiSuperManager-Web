@@ -9,8 +9,20 @@ import importDirective from '@/directive'
 import { directive as clickOutside } from 'v-click-outside-x'
 import './index.less'
 import '@/assets/icons/iconfont.css'
+
+// vue-mouse-menu
+import menu from 'vue-mouse-menu' 
+Vue.use(menu);
+
+//lodash
 import _ from 'lodash'
 Vue.prototype._ = _
+
+// 拖拽·缩放·画布插件
+import VueDraggableResizable from 'vue-draggable-resizable'
+import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
+Vue.component('vue-draggable-resizable', VueDraggableResizable)
+
 
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)

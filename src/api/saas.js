@@ -6,7 +6,7 @@ import axios from '@/libs/api.request'
  */
 export const getHash = () => {
   return axios.request({
-    url: 'InterfaceList/getHash',
+    url: 'SaasDoc/getHash',
     method: 'get'
   })
 }
@@ -17,7 +17,7 @@ export const getHash = () => {
  */
 export const refresh = (baseUrl, params) => {
   return axios.refreshRequest(baseUrl, {
-    url: 'InterfaceList/refresh',
+    url: 'SaasDoc/refresh',
     method: 'get',
     params
   })
@@ -37,7 +37,7 @@ export const getList = (data) => {
 
 export const del = (hash) => {
   return axios.request({
-    url: 'InterfaceList/del',
+    url: 'SaasDoc/del',
     method: 'get',
     params: {
       hash: hash
@@ -53,7 +53,7 @@ export const del = (hash) => {
  */
 export const changeStatus = (status, hash) => {
   return axios.request({
-    url: 'InterfaceList/changeStatus',
+    url: 'SaasDoc/changeStatus',
     method: 'get',
     params: {
       status: status,
@@ -82,7 +82,7 @@ export const add = (data) => {
  */
 export const edit = (data) => {
   return axios.request({
-    url: 'InterfaceList/edit',
+    url: 'SaasDoc/edit',
     method: 'post',
     data
   })
@@ -93,7 +93,7 @@ export const edit = (data) => {
  */
 export const getAppList = (params) => {
   return axios.request({
-    url: 'InterfaceList/group',
+    url: 'SaasDoc/group',
     method: 'get',
     params: params
   })
@@ -104,7 +104,7 @@ export const getAppList = (params) => {
  */
 export const createFile = (data) => {
   return axios.request({
-    url: 'InterfaceList/createFunc',
+    url: 'SaasDoc/createFunc',
     method: 'post',
     data
   })

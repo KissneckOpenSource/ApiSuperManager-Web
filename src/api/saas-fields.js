@@ -10,11 +10,11 @@ export const getDataType = (params) => {
     method: 'get',
     params: params
   })
-}
+} 
 
 export const upJson = (data) => {
   return axios.request({
-    url: 'Fields/upload',
+    url: 'SaasDoc/upload',
     method: 'post',
     data
   })
@@ -22,7 +22,7 @@ export const upJson = (data) => {
 
 export const del = (id) => {
   return axios.request({
-    url: 'Fields/del',
+    url: 'SaasDoc/delField',
     method: 'get',
     params: {
       id: id
@@ -37,7 +37,7 @@ export const del = (id) => {
  */
 export const add = (data) => {
   return axios.request({
-    url: 'Fields/add',
+    url: 'SaasDoc/addFields',
     method: 'post',
     data
   })
@@ -50,7 +50,7 @@ export const add = (data) => {
  */
 export const edit = (data) => {
   return axios.request({
-    url: 'Fields/edit',
+    url: 'SaasDoc/editField',
     method: 'post',
     data
   })
@@ -58,7 +58,7 @@ export const edit = (data) => {
 
 export const getResponse = (params) => {
   return axios.request({
-    url: 'Fields/response',
+    url: 'SaasDoc/response',
     method: 'get',
     params: params
   })
@@ -66,7 +66,7 @@ export const getResponse = (params) => {
 
 export const getRequest = (params) => {
   return axios.request({
-    url: 'Fields/request',
+    url: 'SaasDoc/responseApi',
     method: 'get',
     params: params
   })

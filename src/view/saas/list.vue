@@ -53,7 +53,7 @@
             icon="md-add">{{ $t('add_button') }}</Button>
           <!-- <Button type="warning" v-has="'InterfaceList/refresh'" class="margin-left-5" @click="handleShowChooseApp"
             icon="md-refresh">刷新路由</Button> -->
-          <Button type="info" class="margin-left-5" to="/wiki/list" icon="md-bookmarks">接口文档</Button>
+          <Button type="info" class="margin-left-5" to="/saas-wiki/list" icon="md-bookmarks">接口文档</Button>
         </div>
         <div>
           <Table :loading="listLoading" :columns="columnsList" :data="tableData" border disabled-hover></Table>
@@ -85,7 +85,8 @@
           <Input v-model="formItem.api_class" placeholder="请输入请求地址"></Input>
         </FormItem>
         <FormItem label="接口说明" prop="des">
-          <Input v-model="formItem.des" placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"></Input>
+          <Input :autosize="{maxRows: 10, minRows: 4}" type="textarea" v-model="formItem.des"
+            placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"></Input>
         </FormItem>
         <FormItem label="接口分组" prop="group_hash">
           <Select v-model="formItem.group_hash" style="width:200px">
@@ -518,52 +519,52 @@ export default {
             }
           },
         },
-        // {
-        //   title: "接口状态",
-        //   align: "center",
-        //   width: 130,
-        //   render: (h, params) => {
-        //     let vm = this;
-        //     return h(
-        //       "i-switch",
-        //       {
-        //         attrs: {
-        //           size: "large",
-        //         },
-        //         props: {
-        //           "true-value": 1,
-        //           "false-value": 0,
-        //           value: params.row.status,
-        //           disabled: !vm.buttonShow.changeStatus,
-        //         },
-        //         on: {
-        //           "on-change": function (status) {
-        //             changeStatus(status, params.row.hash).then((response) => {
-        //               vm.$Message.success(response.data.msg);
-        //               vm.getList();
-        //             });
-        //           },
-        //         },
-        //       },
-        //       [
-        //         h(
-        //           "span",
-        //           {
-        //             slot: "open",
-        //           },
-        //           vm.$t("open_choose")
-        //         ),
-        //         h(
-        //           "span",
-        //           {
-        //             slot: "close",
-        //           },
-        //           vm.$t("close_choose")
-        //         ),
-        //       ]
-        //     );
-        //   },
-        // },
+        {
+          title: "接口状态",
+          align: "center",
+          width: 130,
+          render: (h, params) => {
+            let vm = this;
+            return h(
+              "i-switch",
+              {
+                attrs: {
+                  size: "large",
+                },
+                props: {
+                  "true-value": 1,
+                  "false-value": 0,
+                  value: params.row.status,
+                  disabled: !vm.buttonShow.changeStatus,
+                },
+                on: {
+                  "on-change": function (status) {
+                    changeStatus(status, params.row.hash).then((response) => {
+                      vm.$Message.success(response.data.msg);
+                      vm.getList();
+                    });
+                  },
+                },
+              },
+              [
+                h(
+                  "span",
+                  {
+                    slot: "open",
+                  },
+                  vm.$t("open_choose")
+                ),
+                h(
+                  "span",
+                  {
+                    slot: "close",
+                  },
+                  vm.$t("close_choose")
+                ),
+              ]
+            );
+          },
+        },
         {
           title: "操作",
           align: "center",
@@ -574,7 +575,7 @@ export default {
               editButton(this, h, params.row, params.index),
               requestButton(this, h, params.row, params.index),
               responseButton(this, h, params.row, params.index),
-              // deleteButton(this, h, params.row, params.index),
+              deleteButton(this, h, params.row, params.index),
             ]);
           },
         },

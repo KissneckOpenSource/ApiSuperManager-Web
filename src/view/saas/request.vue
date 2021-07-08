@@ -51,13 +51,13 @@
             <Radio label="1">必填</Radio>
           </RadioGroup>
         </FormItem>
-        <FormItem label="默认值" prop="default" v-if="formItem.is_must.toString() === '0'">
+        <!-- <FormItem label="默认值" prop="default" v-if="formItem.is_must.toString() === '0'">
           <Input style="width: 300px" v-model="formItem.defaults"></Input>
           <Tag color="error" class="margin-left-5"> 仅在字段非必填的情况下生效 </Tag>
-        </FormItem>
-        <FormItem label="规则细节" prop="range">
+        </FormItem> -->
+        <!-- <FormItem label="规则细节" prop="range">
           <Input v-model="formItem.range" type="textarea" placeholder="请输入符合要求的JSON字符串"></Input>
-        </FormItem>
+        </FormItem> -->
         <FormItem label="字段说明" prop="info">
           <Input v-model="formItem.info" type="textarea" placeholder="请输入字段描述"></Input>
         </FormItem>
@@ -199,12 +199,12 @@ export default {
             }
           },
         },
-        {
-          title: "默认值",
-          align: "center",
-          key: "default",
-          width: 160,
-        },
+        // {
+        //   title: "默认值",
+        //   align: "center",
+        //   key: "default",
+        //   width: 160,
+        // },
         {
           title: "字段说明",
           align: "left",

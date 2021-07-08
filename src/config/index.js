@@ -2,7 +2,7 @@ export default {
   /**
    * @description 配置显示在浏览器标签的title
    */
-  title: 'ApiAdmin身边的接口管理专家',
+  title: '可待业务平台',
   /**
    * @description 是否使用国际化，默认为false
    *              如果不使用，则需要在路由中给需要在菜单中展示的路由设置meta: {title: 'xxx'}
