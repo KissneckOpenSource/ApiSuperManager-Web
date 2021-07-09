@@ -510,7 +510,7 @@ export default {
   },
   data() {
     return {
-      showDesignTable: true, // 设计表弹窗
+      showDesignTable: false, // 设计表弹窗
       designTableLoading: true, // 设计表异步
       appList: [],
       showTable: {},
