@@ -63,6 +63,20 @@ class databaseTools {
   }
 
   /**
+   * 编辑数据表
+   * @param username
+   * @param password
+   * @returns {never}
+   */
+   editTable(data) {
+    return axios.request({
+      url: 'CustomDataBase/editDesignTable',
+      method: 'post',
+      data
+    })
+  }
+
+  /**
    * 编辑数据库模型
    * @param username
    * @param password
@@ -90,7 +104,34 @@ class databaseTools {
     })
   }
   /**
+   * 删除数据表
+   * @param username
+   * @param password
+   * @returns {never}
+   */
+   delTable(params) {
+    return axios.request({
+      url: 'CustomDataBase/delDesignTable',
+      method: 'get',
+      params
+    })
+  }
+  /**
    * 删除数据库模型
+   * @param username
+   * @param password
+   * @returns {never}
+   */
+   getProperty(params) {
+    return axios.request({
+      url: 'CustomDataBase/designColumnList',
+      method: 'get',
+      params
+    })
+  }
+
+  /**
+   * 修改字段
    * @param username
    * @param password
    * @returns {never}
