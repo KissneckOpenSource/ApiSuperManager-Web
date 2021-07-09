@@ -7,38 +7,18 @@
       <div slot="right" class="demo-split-pane">
         <Split v-model="split2">
           <div slot="left" class="middle-split-pane">
-            <Tabs value="name1">
-              <TabPane label="数据库" name="name1">
-                <Table :columns="columns8" :data="data7" size="small" ref="table" :border="true" style="height: 100%">
-                  <template slot-scope="{ row }" slot="flag_table">
-                    <strong>{{ row.flag_table == 1? '是':'否' }}</strong>
-                  </template>
-                </Table>
-              </TabPane>
-              <TabPane label="表" name="name2">标签二的内容</TabPane>
-            </Tabs>
+            <vxe-grid ref="xGrid2" v-bind="gridOptions2" max-height="100%" highlight-hover-row highlight-current-row
+              border resizable show-overflow>
+            </vxe-grid>
           </div>
-          <div slot="right" class="right-split-pane">
-            <div>【此功能暂未做】</div>
-            <div>CREATE TABLE `admin_app` (</div>
-            <div class="intent-20">`id` int(11) NOT NULL AUTO_INCREMENT,</div>
-            <div class="intent-20">`app_id` varchar(50) NOT NULL DEFAULT '' COMMENT '应用id',</div>
-            <div class="intent-20">`app_secret` varchar(50) NOT NULL DEFAULT '' COMMENT '应用密码',</div>
-            <div class="intent-20">`app_name` varchar(50) NOT NULL DEFAULT '' COMMENT '应用名称',</div>
-            <div class="intent-20">`app_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '应用状态：0表示禁用，1表示启用',</div>
-            <div class="intent-20">`app_info` text COMMENT '应用说明',</div>
-            <div class="intent-20">`app_api` text COMMENT '当前应用允许请求的全部API接口',</div>
-            <div class="intent-20">`app_group` varchar(128) NOT NULL DEFAULT 'default' COMMENT '当前应用所属的应用组唯一标识',</div>
-            <div class="intent-20">`app_add_time` int(11) NOT NULL DEFAULT '0' COMMENT '应用创建时间',</div>
-            <div class="intent-20">`app_api_show` text COMMENT '前台样式显示所需数据格式',</div>
-            <div class="intent-20">`app_url` varchar(255) DEFAULT '' COMMENT '应用域名',</div>
-            <div class="intent-20">`app_git_path` varchar(1000) DEFAULT NULL COMMENT '应用仓库git ssh克隆地址',</div>
-            <div class="intent-20">`orgin_id` varchar(32) DEFAULT '' COMMENT 'API平台ID唯一编码',</div>
-            <div class="intent-20">`copy_path` varchar(5000) DEFAULT NULL COMMENT '副本项目文件路径',</div>
-            <div class="intent-20">PRIMARY KEY (`id`) USING BTREE,</div>
-            <div class="intent-20">UNIQUE KEY `app_id` (`app_id`) USING BTREE</div>
-            <div>) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC
-              COMMENT='appId和appSecret表';</div>
+          <div slot="right" class="right-split-pane" v-if="Object.keys(showTable).length > 0">
+            <div>CREATE TABLE `{{showTable.title}}` (</div>
+            <div class="intent-20" v-for="(obj,index) in rightContentArr" :key="index">{{obj.show_word}}</div>
+            <!-- <div class="intent-20">PRIMARY KEY (`id`) USING BTREE,</div> -->
+            <!-- <div class="intent-20">UNIQUE KEY `app_id` (`app_id`) USING BTREE</div> -->
+            <div>) ENGINE={{showTable.c_engine}} 实体库={{showTable.flag_table == 1?'是':'否'}} DEFAULT
+              CHARSET={{showTable.c_charset}} ROW_FORMAT=DYNAMIC
+              COMMENT='{{showTable.c_comment}}';</div>
           </div>
         </Split>
       </div>
@@ -50,30 +30,39 @@
         <DropdownItem name="addPoint" @click.native="handleAppend" v-if="menuMod == 1">
           <span>新建数据库</span>
         </DropdownItem>
+        <DropdownItem name="addPoint" @click.native="handleLevelOneRefresh" v-if="menuMod == 1">
+          <span>关闭</span>
+        </DropdownItem>
         <!-- DATABASE -->
+        <DropdownItem name="addPoint" @click.native="handleAppendDatabase" v-if="menuMod == 2">
+          <span>新建数据库</span>
+        </DropdownItem>
+        <DropdownItem name="addPoint" @click.native="handleAppend" v-if="menuMod == 2">
+          <span>新建表</span>
+        </DropdownItem>
         <DropdownItem name="addPoint" @click.native="editDatabase" v-if="menuMod == 2">
           <span>编辑数据库</span>
         </DropdownItem>
         <DropdownItem name="addPoint" @click.native="delDatabase" v-if="menuMod == 2">
           <span>删除数据库</span>
         </DropdownItem>
-        <DropdownItem name="addPoint" @click.native="handleAppend" v-if="menuMod == 2">
-          <span>新建表</span>
-        </DropdownItem>
         <DropdownItem name="addPoint" @click.native="handleLevelTwoRefresh" v-if="menuMod == 2">
           <span>刷新</span>
         </DropdownItem>
-        <DropdownItem name="addPoint" @click.native="handleAppend" v-if="menuMod == 2">
+        <DropdownItem name="addPoint" @click.native="" v-if="menuMod == 2">
           <span>创建实体库（开发中）</span>
         </DropdownItem>
         <!-- TABLE -->
         <DropdownItem name="addPoint" @click.native="" v-if="menuMod == 3">
-          <span>打开表</span>
+          <span>打开表（开发中）</span>
         </DropdownItem>
         <DropdownItem name="addPoint" @click.native="editTable" v-if="menuMod == 3">
-          <span>设计表</span>
+          <span>编辑表</span>
         </DropdownItem>
-        <DropdownItem name="addPoint" @click.native="handleAppend" v-if="menuMod == 3">
+        <DropdownItem name="addPoint" @click.native="designTable" v-if="menuMod == 3">
+          <span>设计表（正在开发）</span>
+        </DropdownItem>
+        <DropdownItem name="addPoint" @click.native="delTable" v-if="menuMod == 3">
           <span>删除表</span>
         </DropdownItem>
         <DropdownItem name="addPoint" @click.native="handleAppend" v-if="menuMod == 3">
@@ -85,8 +74,14 @@
     <Modal v-model="showAddDatabase" :title="EditDatabase?'编辑数据库模型':'添加数据库模型'" :loading="addDatabaseLoading"
       :closable="false" :mask-closable="false">
       <Form ref="addDatabaseForm" :model="databaseTemp" :label-width="80" :rules="addDatabaseRules">
-        <FormItem label="应用ID" prop="app_id">
+        <!-- <FormItem label="应用ID" prop="app_id">
           <Input v-model="databaseTemp.app_id" placeholder="请输入应用ID"></Input>
+        </FormItem> -->
+        <FormItem label="应用" prop="app_id">
+          <Select v-model="databaseTemp.app_id" style="width:200px" placeholder="请选择应用">
+            <Option v-for="(v, i) in appList" :value="v.app_id" :kk="i" :key="v.id" @click.native="handleAppChange(v)">
+              {{v.app_name}}</Option>
+          </Select>
         </FormItem>
         <FormItem label="名称" prop="name">
           <Input v-model="databaseTemp.name" placeholder="请输入数据库名称"></Input>
@@ -108,12 +103,12 @@
         </FormItem>
       </Form>
       <div slot="footer" v-if="EditDatabase">
-        <Button type="text" size="large" @click="editDatabaseCancel">取消</Button>
-        <Button type="primary" size="large" @click="editDatabaseConfirm">确定</Button>
+        <Button type="text" @click="editDatabaseCancel">取消</Button>
+        <Button type="primary" @click="editDatabaseConfirm">确定</Button>
       </div>
       <div slot="footer" v-else>
-        <Button type="text" size="large" @click="addDatabaseCancel">取消</Button>
-        <Button type="primary" size="large" @click="addDatabaseConfirm">确定</Button>
+        <Button type="text" @click="addDatabaseCancel">取消</Button>
+        <Button type="primary" @click="addDatabaseConfirm">确定</Button>
       </div>
     </Modal>
     <!-- 添加数据表弹窗 -->
@@ -129,8 +124,8 @@
         <FormItem label="中文别名" prop="name">
           <Input v-model="TableTemp.name" placeholder="请输入中文别名"></Input>
         </FormItem>
-        <FormItem label="编码" prop="d_orgin_id">
-          <Input v-model="TableTemp.d_orgin_id" placeholder="请输入编码" :disabled="true"></Input>
+        <FormItem label="DB编码" prop="d_orgin_id">
+          <Input v-model="TableTemp.d_orgin_id" placeholder="请输入DB编码" :disabled="true"></Input>
         </FormItem>
         <FormItem label="注释" prop="c_comment">
           <Input v-model="TableTemp.c_comment" placeholder="请输入注释"></Input>
@@ -154,20 +149,371 @@
           </RadioGroup>
         </FormItem>
       </Form>
-      <div slot="footer">
-        <Button type="text" size="large" @click="addTabelCancel">取消</Button>
-        <Button type="primary" size="large" @click="addTableConfirm">确定</Button>
+      <div slot="footer" v-if="EditTable">
+        <Button type="text" @click="addTabelCancel">取消</Button>
+        <Button type="primary" @click="editTableConfirm(EditTable)">确定</Button>
+      </div>
+      <div slot="footer" v-else>
+        <Button type="text" @click="addTabelCancel">取消</Button>
+        <Button type="primary" @click="addTableConfirm(EditTable)">确定</Button>
       </div>
     </Modal>
-
+    <Modal v-model="showDesignTable" title="设计表" width="1200" :closable="true" :mask-closable="false"
+      :loading="designTableLoading">
+      <vxe-grid ref="xGrid" v-bind="designTableOptions">
+        <template #operate="{ row }">
+          <template v-if="$refs.xGrid.isActiveByRow(row)">
+            <vxe-button icon="fa fa-save" status="primary" title="保存" circle @click="saveRowEvent(row)"></vxe-button>
+          </template>
+          <template v-else>
+            <vxe-button icon="fa fa-edit" title="编辑" circle @click="editRowEvent(row)"></vxe-button>
+          </template>
+          <vxe-button icon="fa fa-trash" title="删除" circle @click="removeRowEvent(row)"></vxe-button>
+          <!-- <vxe-button icon="fa fa-eye" title="查看" circle></vxe-button> -->
+          <!-- <vxe-button icon="fa fa-gear" title="设置" circle></vxe-button> -->
+        </template>
+      </vxe-grid>
+      <div slot="footer">
+        <!-- <Button type="text" @click="showDesignTable = false">取消</Button>
+        <Button type="primary" @click="showDesignTable = false">保存</Button> -->
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script>
+import { getList as getAppList } from "@/api/app";
+import Sortable from "sortablejs";
 import databaseTools from "@/api/database";
 export default {
+  computed: {
+    gridOptions2() {
+      return {
+        border: true,
+        columnKey: true,
+        class: "sortable-column-demo",
+        scrollX: {
+          enabled: false,
+        },
+        columns: [
+          {
+            title: "表名",
+            field: "name_code",
+            width: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.name_code}
+                  </div>,
+                ];
+              },
+            },
+          },
+          {
+            title: "中文别名",
+            field: "name",
+            width: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.name}
+                  </div>,
+                ];
+              },
+            },
+          },
+          {
+            title: "实体",
+            field: "flag_table",
+            width: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.flag_table == 1 ? "是" : "否"}
+                  </div>,
+                ];
+              },
+            },
+          },
+          {
+            title: "引擎",
+            field: "c_engine",
+            width: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.c_engine}
+                  </div>,
+                ];
+              },
+            },
+          },
+          {
+            title: "字符集",
+            field: "c_charset",
+            width: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.c_charset}
+                  </div>,
+                ];
+              },
+            },
+          },
+          {
+            title: "排序规则",
+            field: "c_collation",
+            width: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.c_collation}
+                  </div>,
+                ];
+              },
+            },
+          },
+          {
+            title: "注释",
+            field: "c_comment",
+            width: 150,
+            minWidth: 150,
+            slots: {
+              // 使用 JSX 渲染
+              default: ({ row }) => {
+                return [
+                  <div
+                    onContextmenu={(e) => this.onContextmenu(e, this, 3, row)}
+                    onClick={(e) => this.handleLevelThreeClick(e, row, this)}
+                    class="myRow"
+                  >
+                    {row.c_comment}
+                  </div>,
+                ];
+              },
+            },
+          },
+        ],
+        data: this.data7,
+      };
+    },
+    designTableOptions() {
+      return {
+        border: true,
+        resizable: true,
+        keepSource: true,
+        showOverflow: true,
+        height: 530,
+        loading: false,
+        toolbarConfig: {
+          buttons: [
+            {
+              code: "insert_actived",
+              name: "新增",
+              status: "perfect",
+              icon: "fa fa-plus",
+            },
+            {
+              code: "save",
+              name: "保存",
+              status: "perfect",
+              icon: "fa fa-save",
+            },
+          ],
+          perfect: true,
+          refresh: {
+            icon: "fa fa-refresh",
+            iconLoading: "fa fa-spinner fa-spin",
+          },
+          zoom: {
+            iconIn: "fa fa-arrows-alt",
+            iconOut: "fa fa-expand",
+          },
+          custom: {
+            icon: "fa fa-cog",
+          },
+        },
+        editConfig: {
+          // 设置触发编辑为手动模式
+          trigger: "manual",
+          // 设置为整行编辑模式
+          mode: "row",
+          // 显示修改状态和新增状态
+          showStatus: true,
+          // 自定义可编辑列头的图标
+          icon: "fa fa-file-text-o",
+        },
+        columns: [
+          {
+            title: "名",
+            field: "name_code",
+            width: 150,
+            minWidth: 150,
+            editRender: { name: "input", type: "text" },
+          },
+          {
+            field: "c_type",
+            title: "类型",
+            width: 150,
+            minWidth: 150,
+            editRender: {
+              name: "select",
+              options: [
+                { value: "tinyint", label: "tinyint" },
+                { value: "smallint", label: "smallint" },
+                { value: "mediumint", label: "mediumint" },
+                { value: "int", label: "int" },
+                { value: "bigint", label: "bigint" },
+                { value: "float", label: "float" },
+                { value: "double", label: "double" },
+                { value: "demical", label: "demical" },
+                { value: "datetime", label: "datetime" },
+                { value: "timestamp", label: "timestamp" },
+                { value: "char", label: "char" },
+                { value: "varchar", label: "varchar" },
+                { value: "tinyblob", label: "tinyblob" },
+                { value: "mediumblob", label: "mediumblob" },
+                { value: "blob", label: "blob" },
+                { value: "longblob", label: "longblob" },
+                { value: "tinytext", label: "tinytext" },
+                { value: "mediumtext", label: "mediumtext" },
+                { value: "text", label: "text" },
+                { value: "longtext", label: "longtext" },
+              ],
+            },
+          },
+          {
+            field: "c_len",
+            title: "长度",
+            width: 150,
+            minWidth: 150,
+            editRender: { name: "input", type: "number" },
+          },
+          {
+            field: "demical",
+            title: "小数点",
+            width: 150,
+            minWidth: 150,
+            editRender: { name: "input", type: "number" },
+          },
+          {
+            field: "c_null",
+            title: "不是 null",
+            width: 150,
+            minWidth: 150,
+            editRender: {
+              name: "select",
+              options: [
+                { value: "0", label: "√" },
+                { value: "1", label: "×" },
+              ],
+            },
+          },
+          {
+            field: "is_key",
+            title: "主键",
+            width: 150,
+            minWidth: 150,
+            editRender: {
+              name: "select",
+              options: [
+                { value: "0", label: "" },
+                { value: "1", label: "🔑" },
+              ],
+            },
+          },
+          {
+            field: "is_increment",
+            title: "自增",
+            width: 150,
+            minWidth: 150,
+            editRender: {
+              name: "select",
+              options: [
+                { value: "0", label: "×" },
+                { value: "1", label: "√" },
+              ],
+            },
+          },
+          {
+            field: "key_comment",
+            title: "注释",
+            width: 150,
+            minWidth: 150,
+            editRender: { name: "input", type: "text" },
+          },
+          {
+            title: "操作",
+            width: 120,
+            slots: { default: "operate" },
+            fixed: "right",
+          },
+          // c_comment: "删除时间"
+          // c_date_update: 0
+          // c_default: ""
+          // c_len: ""
+          // c_null: 0
+          // c_symbol: 0
+          // c_type: "datetime"
+          // d_orgin_id: null
+          // id: 23
+          // is_increment: 0
+          // is_key: 1
+          // is_primary: 0
+          // key_comment: ""
+          // key_fun: "BTREE"
+          // key_type: "NORMAL"
+          // name_code: "update_time"
+          // o_orgin_id: "202107081601194219645"
+          // orgin_id: "202107081601201572170"
+        ],
+        data: this.columns,
+      };
+    },
+  },
   data() {
     return {
+      showDesignTable: true, // 设计表弹窗
+      designTableLoading: true, // 设计表异步
+      appList: [],
+      showTable: {},
       addTableRules: {
         app_id: [
           {
@@ -219,6 +565,7 @@ export default {
           },
         ],
       },
+      rightContentArr: [], //右边内容
       TableTemp: {},
       showAddTable: false,
       addTableLoading: true,
@@ -326,7 +673,7 @@ export default {
           width: 150,
         },
         {
-          title: "是否创建实体库",
+          title: "实体",
           key: "flag_table",
           slot: "flag_table",
           tooltip: true,
@@ -359,6 +706,7 @@ export default {
           key: "c_comment",
           tooltip: true,
           resizable: true,
+          minWidth: 150,
         },
       ],
       data7: [],
@@ -374,8 +722,130 @@ export default {
       columns: [],
     };
   },
-  created() {},
+  created() {
+    this.columnDrop2();
+    getAppList().then((res) => {
+      this.appList = res.data.data.list;
+    });
+  },
+  activated() {
+    getAppList().then((res) => {
+      this.appList = res.data.data.list;
+    });
+  },
+  beforeDestroy() {
+    if (this.sortable2) {
+      this.sortable2.destroy();
+    }
+  },
   methods: {
+    saveRowEvent() {
+      const $grid = this.$refs.xGrid;
+      $grid.clearActived().then(() => {
+        this.gridOptions.loading = true;
+        // databaseTools
+        setTimeout(() => {
+          this.gridOptions.loading = false;
+          this.$XModal.message({ content: "保存成功！", status: "success" });
+        }, 300);
+      });
+    },
+    editRowEvent(row) {
+      const $grid = this.$refs.xGrid;
+      $grid.setActiveRow(row);
+    },
+    designTable() {
+      console.log("onData", this.onData);
+      this.threeClickNext(this.onData, this);
+      this.showDesignTable = true;
+    },
+    refreshNodeBy(id) {
+      let node = this.$refs.asyncTree.getNode(id); // 通过节点id找到对应树节点对象
+      node.loaded = false;
+      node.expand(); // 主动调用展开节点方法，重新查询该节点下的所有子节点
+    },
+    // root刷新
+    handleLevelOneRefresh() {
+      this.data5[0].loading = true;
+      console.log("onData", this.onData);
+      this.data5 = [
+        {
+          title: "业务平台",
+          loading: false,
+          level: 1,
+          render: (h, { root, node, data }) => {
+            return (
+              <span
+                style={{ display: "inline-block", width: "100%" }}
+                onContextmenu={($event) =>
+                  this.onContextmenu($event, this, 1, data)
+                }
+              >
+                <span>
+                  <Icon props={{ type: "md-laptop" }}></Icon>
+                  <span style={{ marginLeft: "6px" }}>{data.title}</span>
+                </span>
+              </span>
+            );
+          },
+          children: [],
+        },
+      ];
+    },
+    // 选择应用
+    handleAppChange(item) {
+      this.$set(this.databaseTemp, "app_id", item.app_id);
+      // this.databaseTemp.app_id = item.id;
+      console.log("app_id", this.databaseTemp.app_id);
+    },
+    columnDrop2() {
+      this.$nextTick(() => {
+        const $table = this.$refs.xGrid2;
+        this.sortable2 = Sortable.create(
+          $table.$el.querySelector(
+            ".body--wrapper>.vxe-table--header .vxe-header--row"
+          ),
+          {
+            handle: ".vxe-header--column:not(.col--fixed)",
+            onEnd: ({ item, newIndex, oldIndex }) => {
+              const { fullColumn, tableColumn } = $table.getTableColumn();
+              const targetThElem = item;
+              const wrapperElem = targetThElem.parentNode;
+              const newColumn = fullColumn[newIndex];
+              if (newColumn.fixed) {
+                // 错误的移动
+                if (newIndex > oldIndex) {
+                  wrapperElem.insertBefore(
+                    targetThElem,
+                    wrapperElem.children[oldIndex]
+                  );
+                } else {
+                  wrapperElem.insertBefore(
+                    wrapperElem.children[oldIndex],
+                    targetThElem
+                  );
+                }
+                return this.$XModal.message({
+                  content: "固定列不允许拖动！",
+                  status: "error",
+                });
+              }
+              // 转换真实索引
+              const oldColumnIndex = $table.getColumnIndex(
+                tableColumn[oldIndex]
+              );
+              const newColumnIndex = $table.getColumnIndex(
+                tableColumn[newIndex]
+              );
+              // 移动到目标列
+              const currRow = fullColumn.splice(oldColumnIndex, 1)[0];
+              fullColumn.splice(newColumnIndex, 0, currRow);
+              $table.loadColumn(fullColumn);
+            },
+          }
+        );
+      });
+    },
     // 删除数据库
     delDatabase() {
       this.$Modal.confirm({
@@ -398,6 +868,34 @@ export default {
         onCancel: () => {},
       });
     },
+    // 删除table
+    delTable() {
+      console.log("delete table", this.onData, this.data5, this.showTable);
+      let x = this.data5[0].children.findIndex(
+        (e) => e.orgin_id == this.onData.d_orgin_id
+      );
+      let y = this.data5[0].children[x].children.findIndex(
+        (e) => e.id == this.onData.id
+      );
+      this.$Modal.confirm({
+        title: "提示",
+        content: `真的要删除【${this.onData.name_code}(${this.onData.name})】吗？`,
+        onOk: () => {
+          databaseTools
+            .delTable(_.pick(this.onData, ["orgin_id", "app_id"]))
+            .then((res) => {
+              if (res.data.code == 1) {
+                this.data5[0].children[x].children.splice(y, 1);
+                console.log("after remove", this.data5);
+                this.$Message.success(res.data.msg);
+              } else {
+                this.$Message.error(res.data.msg);
+              }
+            });
+        },
+        onCancel: () => {},
+      });
+    },
     // 编辑数据库
     editDatabase() {
       Object.assign(this.databaseTemp, this.onData);
@@ -406,7 +904,9 @@ export default {
     },
     // 编辑表
     editTable() {
-      Object.assign(this.TableTemp, this.onData);
+      // Object.assign(this.TableTemp, this.onData);
+      this.TableTemp = _.cloneDeep(this.onData);
+      console.log("tableTemp", this.TableTemp);
       this.showAddTable = true;
       this.EditTable = true;
     },
@@ -414,7 +914,7 @@ export default {
     editDatabaseCancel() {
       this.$Modal.confirm({
         title: "提示",
-        content: "您所作修改都不会被保存，确定要离开吗？",
+        content: "您所做修改都不会被保存，确定要离开吗？",
         onOk: () => {
           this.showAddDatabase = false;
           this.$refs["addDatabaseForm"].resetFields();
@@ -430,9 +930,6 @@ export default {
           this.addDatabaseLoading = false;
           databaseTools.editDatabase(this.databaseTemp).then((res) => {
             if (res.data.code == 1) {
-              let index = this.data5[0].children.findIndex(
-                (e) => e.id == this.onData.id
-              );
               this.databaseTemp.title = this.databaseTemp.name;
               Object.assign(this.onData, this.databaseTemp);
               this.$Message.success("修改成功!");
@@ -459,8 +956,45 @@ export default {
         }
       });
     },
+    // 编辑数据表确认
+    editTableConfirm() {
+      console.log("确认修改 数据表", this.onData, this.TableTemp);
+      this.$refs["addTableForm"].validate((valid) => {
+        if (valid) {
+          this.addTableLoading = false;
+          databaseTools.editTable(this.TableTemp).then((res) => {
+            if (res.data.code == 1) {
+              this.TableTemp.title = this.TableTemp.name_code;
+              Object.assign(this.onData, this.TableTemp);
+              this.$Message.success(
+                "修改成功!",
+                Object.assign(this.onData, this.TableTemp)
+              );
+              this.showAddTable = false;
+              this.$refs["addTableForm"].resetFields(); //重置表单
+            } else {
+              this.$Message.error(res.data.data.msg);
+              setTimeout(() => {
+                this.addTableLoading = false;
+                this.$nextTick(() => {
+                  this.addTableLoading = true;
+                });
+              });
+            }
+          });
+        } else {
+          this.$Message.error("Fail!");
+          setTimeout(() => {
+            this.addTableLoading = false;
+            this.$nextTick(() => {
+              this.addTableLoading = true;
+            });
+          });
+        }
+      });
+    },
     // 数据表添加确认
-    addTableConfirm() {
+    addTableConfirm(EditTable) {
       this.$refs["addTableForm"].validate((valid) => {
         if (valid) {
           this.addTableLoading = false;
@@ -498,7 +1032,7 @@ export default {
     addTabelCancel() {
       this.$Modal.confirm({
         title: "提示",
-        content: "您所作修改都不会被保存，确定要离开吗？",
+        content: "您所做修改都不会被保存，确定要离开吗？",
         onOk: () => {
           this.showAddTable = false;
           this.$refs["addTableForm"].resetFields();
@@ -542,13 +1076,25 @@ export default {
                 id: e.id,
                 name: e.name,
                 name_code: e.name_code,
+                orgin_id: e.orgin_id,
+                app_id: e.app_id,
+                d_orgin_id: e.d_orgin_id,
                 level: 3,
                 render: (h, { root, node, data }) => {
                   return (
                     <span
                       style={{ display: "inline-block", width: "100%" }}
                       onContextmenu={($event) =>
-                        this.onContextmenu($event, this, 3, data, root, node)
+                        this.onContextmenu($event, this, 3, data)
+                      }
+                      onClick={($event) =>
+                        this.handleLevelThreeClick(
+                          $event,
+                          data,
+                          this,
+                          root,
+                          node
+                        )
                       }
                     >
                       <span>
@@ -576,7 +1122,7 @@ export default {
     addDatabaseCancel() {
       this.$Modal.confirm({
         title: "提示",
-        content: "您所作修改都不会被保存，确定要离开吗？",
+        content: "您所做修改都不会被保存，确定要离开吗？",
         onOk: () => {
           this.showAddDatabase = false;
           this.$refs["addDatabaseForm"].resetFields();
@@ -586,6 +1132,7 @@ export default {
     },
     // 添加数据库模型确认
     addDatabaseConfirm() {
+      console.log("this.databaseTemp", this.databaseTemp);
       this.$refs["addDatabaseForm"].validate((valid) => {
         if (valid) {
           this.addDatabaseLoading = false;
@@ -627,31 +1174,65 @@ export default {
         that.threeClickNext(item, that, node);
       }, 200);
     },
-    threeClickNext(item, that, node) {
+    threeClickNext(item, that) {
       console.log("threeClickNext", item);
+      this.showTable = item;
       let index = that.data5[0].children.findIndex(
-        (e) => e.nodeKey == node.parent
+        (e) => e.orgin_id == item.d_orgin_id
       );
-      console.log("index", index);
       that.data7 = that.data5[0].children[index].children;
       databaseTools
         .getProperty({
           size: 999,
           page: 1,
-          app_id: that.data5[0].children[index].app_id,
+          app_id: item.app_id,
           o_orgin_id: item.orgin_id,
         })
         .then((res) => {
+          let rightContentArr = [
+            {
+              name_code: "update_time", // 字段名
+              c_type: "datetime", // 类型
+              c_len: "", // 类型长度
+              c_null: 0, // 是否为NULL
+              c_default: "", // 是否有默认值
+              is_increment: 0, // 是否自增
+              c_comment: "删除时间", // 注释
+            },
+          ];
+          let rightContentKey = {
+            is_key: 1,
+            key_type: "NORMAL",
+            key_fun: "BTREE",
+          };
           if (res.data.code == 1 && res.data.data.count > 0) {
             this.columns = res.data.data.list;
+            console.log("columns", this.columns);
+            this.rightContentArr = this.columns.map((e) => {
+              return {
+                name_code: e.name_code,
+                c_type: e.c_type, // 类型
+                c_len: e.c_len, // 类型长度
+                c_null: e.c_null, // 是否为NULL
+                c_default: e.c_default, // 是否有默认值
+                is_increment: e.is_increment, // 是否自增
+                c_comment: e.c_comment, // 注释
+                show_word: `'${e.name_code}' ${e.c_type}(${e.c_len}) ${
+                  e.c_null == 1 ? "NOT NULL" : ""
+                } DEFAULT ${e.c_default} COMMENT '${e.c_comment}' ${
+                  e.is_increment ? "AUTO_INCREMENT" : ""
+                }`,
+              };
+            });
           } else {
-            this.$Message.warning("暂无字段，请创建~");
+            // this.$Message.warning("暂无字段，请创建~");
             this.columns = [];
           }
         });
     },
     // 树上二级元素点击
     handleClick($event, item, that) {
+      this.showTable = {};
       clearTimeout(that.singleClickTimer);
       that.singleClickTimer = setTimeout(() => {
         that.handleSingleClick(item, that);
@@ -684,9 +1265,9 @@ export default {
             );
           } else if (res.data.data.list.length == 0) {
             // 异常
-            this.$Message.error(
-              "fatal error occurred on loadData(),cannot find any database!"
-            );
+            this.$Message.warning("cannot find any database!");
+            callbackData = [];
+            callback(callbackData);
           } else {
             let arr = res.data.data.list;
             callbackData = arr.map((e) => {
@@ -774,6 +1355,8 @@ export default {
                   name: e.name,
                   name_code: e.name_code,
                   orgin_id: e.orgin_id,
+                  app_id: e.app_id,
+                  d_orgin_id: e.d_orgin_id,
                   level: 3,
                   render: (h, { root, node, data }) => {
                     return (
@@ -884,7 +1467,7 @@ export default {
               <span
                 style={{ display: "inline-block", width: "100%" }}
                 onContextmenu={($event) =>
-                  this.onContextmenu($event, this, 3, data, root, node)
+                  this.onContextmenu($event, this, 3, data)
                 }
                 onClick={($event) =>
                   this.handleLevelThreeClick($event, data, this, root, node)
@@ -893,7 +1476,7 @@ export default {
                 <span>
                   <Icon
                     style={{ marginRight: "6px" }}
-                    props={{ type: "ios-list-box" }}
+                    props={{ type: "md-list-box" }}
                   ></Icon>
                   <span>{data.title}</span>
                 </span>
@@ -908,16 +1491,17 @@ export default {
       }
       children.push(obj);
       this.$set(data, "children", children);
+      console.log(this.data5);
     },
     // 添加数据库 数据表
     handleAppend() {
       console.log("添加数据库 数据表", this.onData);
       if (this.onData.level == 1) {
         // 添加数据库
-        if (!this.onData.expand) {
-          this.$Message.error("请展开该项后再操作！");
-          return;
-        }
+        // if (!this.onData.expand) {
+        //   this.$Message.error("请展开该项后再操作！");
+        //   return;
+        // }
         this.showAddDatabase = true;
         return;
       }
@@ -926,6 +1510,12 @@ export default {
         this.TableTemp.app_id = this.onData.app_id;
         this.TableTemp.d_orgin_id = this.onData.orgin_id;
       }
+    },
+    handleAppendDatabase() {
+      this.onData = this.data5[0];
+      this.menuMod = 1;
+      console.log("添加数据库", this.onData);
+      this.showAddDatabase = true;
     },
     remove(root, node, data) {
       const parentKey = root.find((el) => el === node).parent;
@@ -938,6 +1528,25 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.middle-split-pane {
+  /deep/.vxe-body--column .vxe-cell {
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }
+}
+.myRow {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  text-indent: 10px;
+}
+
 .intent-20 {
   text-indent: 20px;
 }
@@ -947,18 +1556,14 @@ export default {
 .right-split-pane {
   padding: 10px 10px;
 }
-/deep/.ivu-table-body.ivu-table-overflowX {
-  height: 1026px;
-}
-/deep/.ivu-table-tip {
-  height: 1026px;
-}
-.demo-split-pane {
-  height: 1080px;
+.demo-split-pane,
+.middle-split-pane {
+  height: calc(~"100vh - 122px");
+  padding-left: 3px;
 }
 .whole {
   width: 100%;
-  height: 1080px;
+  height: calc(~"100vh - 122px");
   display: flex;
 }
 .database {

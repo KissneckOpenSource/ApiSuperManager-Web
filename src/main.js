@@ -10,6 +10,12 @@ import { directive as clickOutside } from 'v-click-outside-x'
 import './index.less'
 import '@/assets/icons/iconfont.css'
 
+// vxe-table
+import 'xe-utils'
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/style.css'
+Vue.use(VXETable)
+
 // vue-mouse-menu
 import menu from 'vue-mouse-menu' 
 Vue.use(menu);
