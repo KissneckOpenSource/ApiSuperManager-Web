@@ -15,6 +15,7 @@ import 'xe-utils'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
 Vue.use(VXETable)
+Vue.prototype.$XModal = VXETable.modal
 
 // vue-mouse-menu
 import menu from 'vue-mouse-menu' 

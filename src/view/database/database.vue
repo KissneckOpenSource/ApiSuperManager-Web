@@ -341,7 +341,6 @@ export default {
         keepSource: true,
         showOverflow: true,
         height: 530,
-        loading: false,
         toolbarConfig: {
           buttons: [
             {
@@ -350,18 +349,8 @@ export default {
               status: "perfect",
               icon: "fa fa-plus",
             },
-            {
-              code: "save",
-              name: "保存",
-              status: "perfect",
-              icon: "fa fa-save",
-            },
           ],
           perfect: true,
-          refresh: {
-            icon: "fa fa-refresh",
-            iconLoading: "fa fa-spinner fa-spin",
-          },
           zoom: {
             iconIn: "fa fa-arrows-alt",
             iconOut: "fa fa-expand",
@@ -473,7 +462,7 @@ export default {
             },
           },
           {
-            field: "key_comment",
+            field: "c_comment",
             title: "注释",
             width: 150,
             minWidth: 150,
@@ -485,31 +474,15 @@ export default {
             slots: { default: "operate" },
             fixed: "right",
           },
-          // c_comment: "删除时间"
-          // c_date_update: 0
-          // c_default: ""
-          // c_len: ""
-          // c_null: 0
-          // c_symbol: 0
-          // c_type: "datetime"
-          // d_orgin_id: null
-          // id: 23
-          // is_increment: 0
-          // is_key: 1
-          // is_primary: 0
-          // key_comment: ""
-          // key_fun: "BTREE"
-          // key_type: "NORMAL"
-          // name_code: "update_time"
-          // o_orgin_id: "202107081601194219645"
-          // orgin_id: "202107081601201572170"
         ],
         data: this.columns,
+        loading: this.designTableOptions_loading,
       };
     },
   },
   data() {
     return {
+      designTableOptions_loading: false,
       showDesignTable: false, // 设计表弹窗
       designTableLoading: true, // 设计表异步
       appList: [],
@@ -720,6 +693,7 @@ export default {
       EditDatabase: false,
       EditTable: false,
       columns: [],
+      columnParent: {}, //  当前操作column的origin_id,app_id信息
     };
   },
   created() {
@@ -739,30 +713,103 @@ export default {
     }
   },
   methods: {
-    saveRowEvent() {
+    saveRowEvent(row) {
       const $grid = this.$refs.xGrid;
+      if (!row.c_null) {
+        this.$set(row, "c_null", 0);
+      }
+      if (!row.is_key) {
+        this.$set(row, "is_key", 0);
+      }
+      if (!row.is_increment) {
+        this.$set(row, "is_increment", 0);
+      }
+      if (!row.c_type) {
+        this.$set(row, "c_type", "tinyint");
+      }
+      if (!row.c_comment) {
+        this.$set(row, "c_comment", "未填写");
+      }
+      console.log(row, this.onData);
       $grid.clearActived().then(() => {
-        this.gridOptions.loading = true;
+        this.designTableOptions_loading = true;
+        if (row.id) {
+          // 保存
+          databaseTools
+            .editField(Object.assign({}, row, this.columnParent))
+            .then((res) => {
+              if (res.data.code == 1) {
+                setTimeout(() => {
+                  this.designTableOptions_loading = false;
+                  this.$Message.success("保存成功");
+                }, 300);
+              } else {
+                this.designTableOptions_loading = false;
+                this.$Message.error(res.data.msg);
+              }
+            });
+        } else {
+          // 新增
+          databaseTools
+            .addField(Object.assign({}, row, this.columnParent))
+            .then((res) => {
+              if (res.data.code == 1) {
+                this.$set(row, "id", 666);
+                setTimeout(() => {
+                  this.designTableOptions_loading = false;
+                  this.$Message.success("保存成功");
+                }, 300);
+              } else {
+                this.designTableOptions_loading = false;
+                this.$Message.error(res.data.msg);
+              }
+            });
+        }
         // databaseTools
-        setTimeout(() => {
-          this.gridOptions.loading = false;
-          this.$XModal.message({ content: "保存成功！", status: "success" });
-        }, 300);
       });
     },
+    // 编辑 field
     editRowEvent(row) {
       const $grid = this.$refs.xGrid;
       $grid.setActiveRow(row);
     },
+    // 删除 field
+    removeRowEvent(row) {
+      const $grid = this.$refs.xGrid;
+      console.log("row", row);
+      this.$Modal.confirm({
+        title: "提示",
+        content: `您确定要删除该数据？`,
+        onOk: () => {
+          databaseTools
+            .delField(
+              _.pick(Object.assign({}, row, this.columnParent), [
+                "app_id",
+                "orgin_id",
+                "id",
+              ])
+            )
+            .then((res) => {
+              if (res.data.code == 1) {
+                $grid.remove(row);
+                this.$Message.success("删除成功");
+              } else {
+                this.$Message.error(res.data.msg);
+              }
+            });
+        },
+        onCancel: () => {},
+      });
+    },
+    // 设计表
     designTable() {
       console.log("onData", this.onData);
+      this.columnParent = {
+        app_id: this.onData.app_id,
+        o_orgin_id: this.onData.orgin_id,
+      };
       this.threeClickNext(this.onData, this);
       this.showDesignTable = true;
-    },
-    refreshNodeBy(id) {
-      let node = this.$refs.asyncTree.getNode(id); // 通过节点id找到对应树节点对象
-      node.loaded = false;
-      node.expand(); // 主动调用展开节点方法，重新查询该节点下的所有子节点
     },
     // root刷新
     handleLevelOneRefresh() {
@@ -1175,60 +1222,63 @@ export default {
       }, 200);
     },
     threeClickNext(item, that) {
-      console.log("threeClickNext", item);
-      this.showTable = item;
-      let index = that.data5[0].children.findIndex(
-        (e) => e.orgin_id == item.d_orgin_id
-      );
-      that.data7 = that.data5[0].children[index].children;
-      databaseTools
-        .getProperty({
-          size: 999,
-          page: 1,
-          app_id: item.app_id,
-          o_orgin_id: item.orgin_id,
-        })
-        .then((res) => {
-          let rightContentArr = [
-            {
-              name_code: "update_time", // 字段名
-              c_type: "datetime", // 类型
-              c_len: "", // 类型长度
-              c_null: 0, // 是否为NULL
-              c_default: "", // 是否有默认值
-              is_increment: 0, // 是否自增
-              c_comment: "删除时间", // 注释
-            },
-          ];
-          let rightContentKey = {
-            is_key: 1,
-            key_type: "NORMAL",
-            key_fun: "BTREE",
-          };
-          if (res.data.code == 1 && res.data.data.count > 0) {
-            this.columns = res.data.data.list;
-            console.log("columns", this.columns);
-            this.rightContentArr = this.columns.map((e) => {
-              return {
-                name_code: e.name_code,
-                c_type: e.c_type, // 类型
-                c_len: e.c_len, // 类型长度
-                c_null: e.c_null, // 是否为NULL
-                c_default: e.c_default, // 是否有默认值
-                is_increment: e.is_increment, // 是否自增
-                c_comment: e.c_comment, // 注释
-                show_word: `'${e.name_code}' ${e.c_type}(${e.c_len}) ${
-                  e.c_null == 1 ? "NOT NULL" : ""
-                } DEFAULT ${e.c_default} COMMENT '${e.c_comment}' ${
-                  e.is_increment ? "AUTO_INCREMENT" : ""
-                }`,
-              };
-            });
-          } else {
-            // this.$Message.warning("暂无字段，请创建~");
-            this.columns = [];
-          }
-        });
+      return new Promise((resolve) => {
+        console.log("threeClickNext", item);
+        this.showTable = item;
+        let index = that.data5[0].children.findIndex(
+          (e) => e.orgin_id == item.d_orgin_id
+        );
+        that.data7 = that.data5[0].children[index].children;
+        databaseTools
+          .getProperty({
+            size: 999,
+            page: 1,
+            app_id: item.app_id,
+            o_orgin_id: item.orgin_id,
+          })
+          .then((res) => {
+            let rightContentArr = [
+              {
+                name_code: "update_time", // 字段名
+                c_type: "datetime", // 类型
+                c_len: "", // 类型长度
+                c_null: 0, // 是否为NULL
+                c_default: "", // 是否有默认值
+                is_increment: 0, // 是否自增
+                c_comment: "删除时间", // 注释
+              },
+            ];
+            let rightContentKey = {
+              is_key: 1,
+              key_type: "NORMAL",
+              key_fun: "BTREE",
+            };
+            if (res.data.code == 1 && res.data.data.count > 0) {
+              this.columns = res.data.data.list;
+              resolve();
+              console.log("columns", this.columns);
+              this.rightContentArr = this.columns.map((e) => {
+                return {
+                  name_code: e.name_code,
+                  c_type: e.c_type, // 类型
+                  c_len: e.c_len, // 类型长度
+                  c_null: e.c_null, // 是否为NULL
+                  c_default: e.c_default, // 是否有默认值
+                  is_increment: e.is_increment, // 是否自增
+                  c_comment: e.c_comment, // 注释
+                  show_word: `'${e.name_code}' ${e.c_type}(${e.c_len}) ${
+                    e.c_null == 1 ? "NOT NULL" : ""
+                  } DEFAULT ${e.c_default} COMMENT '${e.c_comment}' ${
+                    e.is_increment ? "AUTO_INCREMENT" : ""
+                  }`,
+                };
+              });
+            } else {
+              // this.$Message.warning("暂无字段，请创建~");
+              this.columns = [];
+            }
+          });
+      });
     },
     // 树上二级元素点击
     handleClick($event, item, that) {

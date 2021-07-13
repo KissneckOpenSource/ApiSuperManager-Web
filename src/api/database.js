@@ -136,9 +136,37 @@ class databaseTools {
    * @param password
    * @returns {never}
    */
-   getProperty(params) {
+   addField(data) {
     return axios.request({
-      url: 'CustomDataBase/designColumnList',
+      url: 'CustomDataBase/addDesignColumn',
+      method: 'post',
+      data
+    })
+  }
+
+  /**
+   * 修改字段
+   * @param username
+   * @param password
+   * @returns {never}
+   */
+   editField(data) {
+    return axios.request({
+      url: 'CustomDataBase/editDesignColumn',
+      method: 'post',
+      data
+    })
+  }
+
+  /**
+   * 删除字段
+   * @param username
+   * @param password
+   * @returns {never}
+   */
+   delField(params) {
+    return axios.request({
+      url: 'CustomDataBase/delDesignColumn',
       method: 'get',
       params
     })
