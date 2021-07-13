@@ -60,7 +60,7 @@
           <span>编辑表</span>
         </DropdownItem>
         <DropdownItem name="addPoint" @click.native="designTable" v-if="menuMod == 3">
-          <span>设计表（正在开发）</span>
+          <span>设计表</span>
         </DropdownItem>
         <DropdownItem name="addPoint" @click.native="delTable" v-if="menuMod == 3">
           <span>删除表</span>
@@ -781,22 +781,27 @@ export default {
         title: "提示",
         content: `您确定要删除该数据？`,
         onOk: () => {
-          databaseTools
-            .delField(
-              _.pick(Object.assign({}, row, this.columnParent), [
-                "app_id",
-                "orgin_id",
-                "id",
-              ])
-            )
-            .then((res) => {
-              if (res.data.code == 1) {
-                $grid.remove(row);
-                this.$Message.success("删除成功");
-              } else {
-                this.$Message.error(res.data.msg);
-              }
-            });
+          if (row.id) {
+            databaseTools
+              .delField(
+                _.pick(Object.assign({}, row, this.columnParent), [
+                  "app_id",
+                  "orgin_id",
+                  "id",
+                ])
+              )
+              .then((res) => {
+                if (res.data.code == 1) {
+                  $grid.remove(row);
+                  this.$Message.success("删除成功");
+                } else {
+                  this.$Message.error(res.data.msg);
+                }
+              });
+          } else {
+            $grid.remove(row);
+            this.$Message.success("删除成功");
+          }
         },
         onCancel: () => {},
       });
