@@ -162,7 +162,7 @@
         <span>选择应用</span>
       </p>
       <div>
-        <Select v-model="app_group_id" placeholder="请选择要刷新的应用">
+        <Select v-model="app_group_id" placeholder="请选择要刷新的应用" filterable>
           <Option v-for="(v, i) in appGroupList" :value="v.id" :kk="i" :key="v.app_group"
             @click.native="handleRefreshAppChange(v)"> {{v.app_name}}</Option>
         </Select>

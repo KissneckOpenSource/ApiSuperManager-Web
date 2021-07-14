@@ -71,3 +71,10 @@ export const getAll = () => {
     method: 'get'
   })
 }
+
+export const getAppList = () => {
+  return axios.request({
+    url: 'App/getAll',
+    method: 'get'
+  })
+}

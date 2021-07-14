@@ -14,7 +14,7 @@
             </Select>
           </FormItem>
           <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.app_group" clearable placeholder="请选择应用分组" style="width:200px">
+            <Select v-model="searchConf.app_group" clearable placeholder="请选择应用分组" style="width:200px" filterable>
               <Option v-for="(v, i) in appGroup" :value="v.hash" :kk="i" :key="v.hash">{{v.name}}</Option>
             </Select>
           </FormItem>
@@ -70,7 +70,7 @@
           </Input>
         </FormItem>
         <FormItem label="应用分组" prop="app_group">
-          <Select v-model="formItem.app_group" style="width:200px">
+          <Select v-model="formItem.app_group" style="width:200px" filterable>
             <Option v-for="(v, i) in appGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
           </Select>
         </FormItem>
