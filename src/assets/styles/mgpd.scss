@@ -1,0 +1,32 @@
+@for $i from 1 through 200 {
+    .mg-#{$i} { margin: ($i)+px; }
+    .mg-t-#{$i} { margin-top: ($i)+px; }
+    .mg-b-#{$i} { margin-bottom: ($i)+px; }
+    .mg-l-#{$i} { margin-left: ($i)+px; }
+    .mg-r-#{$i} { margin-right: ($i)+px; }
+   
+    .p-#{$i} { padding: ($i)+px; }
+    .p-t-#{$i} { padding-top: ($i)+px; }
+    .p-b-#{$i} { padding-bottom: ($i)+px; }
+    .p-l-#{$i} { padding-left: ($i)+px; }
+    .p-r-#{$i} { padding-right: ($i)+px; }
+   
+    .fz-#{$i} { font-size: ($i)+px; }
+}
+
+.mg-l-auto{
+    margin-left: auto;
+}
+.mg-t-auto{
+    margin-top: auto;
+}
+.mg-b-auto{
+    margin-bottom: auto;
+}
+.mg-r-auto{
+    margin-right: auto;
+}
+
+.width-full{
+    width: 100%;
+}

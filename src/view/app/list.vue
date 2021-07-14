@@ -141,6 +141,7 @@ const editButton = (vm, h, currentRow, index) => {
               vm.formItem.app_secret = currentRow.app_secret;
               vm.formItem.app_group = currentRow.app_group;
               vm.formItem.app_url = currentRow.app_url;
+              vm.formItem.git_path = currentRow.app_git_path;
               getAppInfo(currentRow.id).then((response) => {
                 let res = response.data;
                 vm.groupInfo = res.data.groupInfo;

@@ -158,8 +158,8 @@
         <Button type="primary" @click="addTableConfirm(EditTable)">确定</Button>
       </div>
     </Modal>
-    <Modal v-model="showDesignTable" title="设计表" width="1200" :closable="true" :mask-closable="false"
-      :loading="designTableLoading">
+    <Modal v-model="showDesignTable" title="设计表" width="1350" :closable="true" :mask-closable="false"
+      :loading="designTableLoading" :mask="true">
       <vxe-grid ref="xGrid" v-bind="designTableOptions">
         <template #operate="{ row }">
           <template v-if="$refs.xGrid.isActiveByRow(row)">
@@ -1281,6 +1281,7 @@ export default {
             } else {
               // this.$Message.warning("暂无字段，请创建~");
               this.columns = [];
+              this.rightContentArr = [];
             }
           });
       });

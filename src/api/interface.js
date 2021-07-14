@@ -15,8 +15,8 @@ export const getHash = () => {
  * 刷新路由
  * @returns {wx.RequestTask | never}
  */
-export const refresh = (baseUrl, params) => {
-  return axios.refreshRequest(baseUrl, {
+export const refresh = (params) => {
+  return axios.request({
     url: 'InterfaceList/refresh',
     method: 'get',
     params
