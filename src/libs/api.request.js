@@ -33,6 +33,10 @@ class HttpRequest {
         return { data, status }
       }
     }, error => {
+      console.log('error',error)
+      if(error && error.data && error.data.message){
+        return { data, status }
+      }
       return Promise.reject(error)
     })
   }
@@ -53,6 +57,7 @@ class HttpRequest {
         }
       }, options)
     }
+    console.log('request')
     this.interceptors(instance)
     return instance(options)
   }
@@ -73,6 +78,7 @@ class HttpRequest {
         }
       }, options)
     }
+    
     this.interceptors(instance)
     return instance(options)
   }

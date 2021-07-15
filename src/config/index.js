@@ -13,10 +13,10 @@ export default {
    * @description api请求基础路径
    */
   baseUrl: {
-    dev: 'https://open.api.kissneck.cn/',
-    pro: 'https://open.api.kissneck.cn/',
-    // dev: 'http://openapi.test.fengxl.com/',
-    // pro: 'http://openapi.test.fengxl.com/'
+    // dev: 'https://open.api.kissneck.cn/',
+    // pro: 'https://open.api.kissneck.cn/',
+    dev: 'http://openapi.test.fengxl.com/',
+    pro: 'http://openapi.test.fengxl.com/'
   },
   /**
    * @description 需要加载的插件

@@ -49,18 +49,24 @@
       <Col span="24">
       <Card>
         <div class="margin-bottom-15">
-          <Button type="primary" v-has="'InterfaceList/add'" @click="alertAdd"
-            icon="md-add">{{ $t('add_button') }}</Button>
-          <Button type="warning" v-has="'InterfaceList/refresh'" class="margin-left-5" @click="handleShowChooseApp"
-            icon="md-refresh">刷新路由</Button>
+          <Button type="primary" v-has="'InterfaceList/add'" @click="alertAdd" icon="md-add">{{ $t('add_button') }}</Button>
+          <Button type="warning" v-has="'InterfaceList/refresh'" class="margin-left-5" @click="handleShowChooseApp" icon="md-refresh">刷新路由</Button>
           <Button type="info" class="margin-left-5" to="/wiki/list" icon="md-bookmarks">接口文档</Button>
         </div>
         <div>
+          <vxe-grid ref="xGrid2" v-bind="gridOptions">
+            <template #input_filter="{ column, $panel }">
+              <div>
+                <div v-for="(option, index) in column.filters" :key="index">
+                  <input type="type" v-model="option.data" @input="changeFilterEvent(evnt, option, $panel)" />
+                </div>
+              </div>
+            </template>
+          </vxe-grid>
           <Table :loading="listLoading" :columns="columnsList" :data="tableData" border disabled-hover></Table>
         </div>
         <div class="margin-top-15" style="text-align: center">
-          <Page :total="tableShow.listCount" :current="tableShow.currentPage" :page-size="tableShow.pageSize"
-            @on-change="changePage" :page-size-opts="[20, 30, 40, 50]" @on-page-size-change="changeSize" show-elevator
+          <Page :total="tableShow.listCount" :current="tableShow.currentPage" :page-size="tableShow.pageSize" @on-change="changePage" :page-size-opts="[20, 30, 40, 50]" @on-page-size-change="changeSize" show-elevator
             show-sizer show-total></Page>
         </div>
       </Card>
@@ -77,8 +83,7 @@
         </FormItem>
         <FormItem label="应用" prop="app_group_hash">
           <Select v-model="formItem.app_group_id" style="width:200px" placeholder="请选择应用">
-            <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group"
-              @click.native="handleAppChange(v)"> {{v.app_name}}</Option>
+            <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group" @click.native="handleAppChange(v)"> {{v.app_name}}</Option>
           </Select>
         </FormItem>
         <FormItem label="真实类库" prop="api_class">
@@ -136,7 +141,7 @@
             <Option :value="1" :key="1"> 普通模式</Option>
             <Option :value="2" :key="2"> 加密模式</Option>
           </Select>
-          <Tooltip placement="right" max-width="800">
+          <Tooltip placement="right" max-width="800">Î
             <Icon type="md-help-circle" class="margin-left-5" color="#2d8cf0" size="20" />
             <div slot="content">
               <p>普通模式：接口将不采用hash映射，会直接使用真实类库来请求。</p>
@@ -163,8 +168,7 @@
       </p>
       <div>
         <Select v-model="app_group_id" placeholder="请选择要刷新的应用" filterable>
-          <Option v-for="(v, i) in appGroupList" :value="v.id" :kk="i" :key="v.app_group"
-            @click.native="handleRefreshAppChange(v)"> {{v.app_name}}</Option>
+          <Option v-for="(v, i) in appGroupList" :value="v.id" :kk="i" :key="v.app_group" @click.native="handleRefreshAppChange(v)"> {{v.app_name}}</Option>
         </Select>
         <!-- <Select v-model="app_group_hash" clearable placeholder="请选择要刷新的应用">
           <Option v-for="(v, i) in appGroupList" :value="v.app_group" :kk="i" :key="v.app_group" @click.native="handleRefreshAppChange(v)"> {{v.app_name}}</Option>
@@ -202,8 +206,9 @@ import {
   createFile,
 } from "@/api/interface";
 import { getAll } from "@/api/interface-group";
-
+import Sortable from "sortablejs";
 const editButton = (vm, h, currentRow, index) => {
+  // console.log('editButton',vm.buttonShow.edit, h, currentRow, index)
   if (vm.buttonShow.edit) {
     return h(
       "Button",
@@ -380,6 +385,378 @@ const responseButton = (vm, h, currentRow, index) => {
 
 export default {
   name: "interface_list",
+  computed: {
+    gridOptions() {
+      return {
+        border: true,
+        resizable: true,
+        showHeaderOverflow: true,
+        showOverflow: true,
+        highlightHoverRow: true,
+        keepSource: true,
+        id: "full_edit_1",
+        height: 600,
+        rowId: "id",
+        customConfig: {
+          storage: true,
+          checkMethod: this.checkColumnMethod,
+        },
+        sortConfig: {
+          trigger: "cell",
+          remote: true,
+        },
+        filterConfig: {
+          remote: true,
+        },
+        pagerConfig: {
+          pageSize: 20,
+          pageSizes: [5, 10, 15, 20, 50, 100, 200, 500, 1000],
+        },
+        toolbarConfig: {
+          buttons: [
+            { code: "insert_actived", name: "新增", icon: "fa fa-plus" },
+            { code: "delete", name: "直接删除", icon: "fa fa-trash-o" },
+            { code: "mark_cancel", name: "删除/取消", icon: "fa fa-trash-o" },
+            {
+              code: "save",
+              name: "保存",
+              icon: "fa fa-save",
+              status: "success",
+            },
+          ],
+          refresh: true,
+          zoom: true,
+          custom: true,
+        },
+        proxyConfig: {
+          seq: true, // 启用动态序号代理，每一页的序号会根据当前页数变化
+          sort: true, // 启用排序代理，当点击排序时会自动触发 query 行为
+          filter: true, // 启用筛选代理，当点击筛选时会自动触发 query 行为
+          form: true, // 启用表单代理，当点击表单提交按钮时会自动触发 reload 行为
+          // 对应响应结果 { result: [], page: { total: 100 } }
+          props: {
+            result: "data.list", // 配置响应结果列表字段
+            total: "data.count", // 配置响应结果总页数字段
+          },
+          ajax: {
+            // 接收 Promise 对象
+            query: ({ page, sorts, filters, form }) => {
+              const queryParams = Object.assign({}, form);
+              console.log("queryParams", queryParams);
+              console.log("sorts", sorts);
+              console.log("filters", queryParams);
+              // 处理排序条件
+              const firstSort = sorts[0];
+              if (firstSort) {
+                queryParams.sort = firstSort.property;
+                queryParams.order = firstSort.order;
+              }
+              // 处理筛选条件
+              filters.forEach(({ property, datas }) => {
+                queryParams[property] = datas.join(",");
+              });
+              return new Promise((resolve) => {
+                getList(queryParams).then((res) => {
+                  resolve(res.data);
+                });
+              });
+            },
+            delete: ({ body }) => {
+              let { removeRecords } = body;
+              let removePromiseList = [];
+              removeRecords.forEach((e, idx) => {
+                removePromiseList[idx] = del(e.hash);
+              });
+              return Promise.all([...removePromiseList]);
+            },
+            save: ({ body }) => {
+              let {
+                insertRecords,
+                pendingRecords,
+                removeRecords,
+                updateRecords,
+              } = body;
+              let insertPromiseList = [];
+              let pendingPromiseList = [];
+              let removePromiseList = [];
+              let updatePromiseList = [];
+              insertRecords.forEach((e, idx) => {
+                insertPromiseList[idx] = add(e);
+              });
+              // pendingPromiseList.forEach((e, idx) => {
+              //   insertPromiseList[idx] = add(e);
+              // });
+              pendingRecords.forEach((e, idx) => {
+                removePromiseList[idx] = del(e.hash);
+              });
+              updateRecords.forEach((e, idx) => {
+                updatePromiseList[idx] = edit(e);
+              });
+              return Promise.all([
+                ...insertPromiseList,
+                ...pendingPromiseList,
+                ...removePromiseList,
+                ...updatePromiseList,
+              ]);
+            },
+          },
+        },
+        columns: [
+          { type: "checkbox", title: "ID", width: 200 ,align:"center"},
+          {
+            field: "app_name",
+            align:"center",
+            title: "应用名称",
+            sortable: true,
+            filters: [{ data: "" }],
+            slots: {
+              filter: "input_filter",
+            },
+            titleHelp: { message: "应用名称必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请输入应用名称" },
+            }
+          },
+          {
+            field: "info",
+            align:"center",
+            title: "接口名称",
+            sortable: true,
+            filters: [{ data: "" }],
+            slots: {
+              filter: "input_filter",
+            },
+            titleHelp: { message: "接口名称必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请输入接口名称" },
+            },
+          },
+          {
+            field: "api_class",
+            align:"center",
+            title: "真实类库",
+            sortable: true,
+            filters: [{ data: "" }],
+            slots: {
+              filter: "input_filter",
+            },
+            titleHelp: { message: "真实类库必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请输入真实类库" },
+            },
+          },
+          {
+            field: "des",
+            align:"center",
+            title: "接口说明",
+            sortable: true,
+            filters: [{ data: "" }],
+            slots: {
+              filter: "input_filter",
+            },
+            titleHelp: { message: "接口说明必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请输入接口说明" },
+            },
+          },
+          {
+            field: "group_name",
+            align:"center",
+            title: "接口分组",
+            sortable: true,
+            filters: [{ data: "" }],
+            slots: {
+              filter: "input_filter",
+            },
+            titleHelp: { message: "接口分组必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请选择接口分组" },
+            },
+          },
+          {
+            field: "method",
+            title: "请求方式",
+            align:"center",
+            sortable: true,
+            filters: [
+              { label: "不限", value: "0" },
+              { label: "POST", value: "1" },
+              { label: "GET", value: "2" },
+              { label: "PUT", value: "3" },
+              { label: "DELETE", value: "4" },
+              { label: "PATCH", value: "5" },
+            ],
+            slots: {
+              default: ({ row }) => {
+                if (row.isTest === 1) {
+                  return [<Tag attrs={{ color: "error" }}>测试</Tag>];
+                } else {
+                  switch (row.method) {
+                    case 1:
+                      return [<Tag attrs={{ color: "success" }}>POST</Tag>];
+                    case 2:
+                      return [<Tag attrs={{ color: "primary" }}>GET</Tag>];
+                    case 3:
+                      return [<Tag attrs={{ color: "green" }}>PUT</Tag>];
+                    case 4:
+                      return [<Tag attrs={{ color: "error" }}>DELETE</Tag>];
+                    case 5:
+                      return [<Tag attrs={{ color: "gold" }}>PATCH</Tag>];
+                    case 0:
+                      return [<Tag attrs={{ color: "warning" }}>不限</Tag>];
+                  }
+                }
+              },
+              edit: ({ row }) => {
+                return [
+                  <Select v-model={row.method} style="width:200px">
+                    <Option value={0} key={0}>
+                      {" "}
+                      不限
+                    </Option>
+                    <Option value={1} key={1}>
+                      {" "}
+                      POST
+                    </Option>
+                    <Option value={2} key={2}>
+                      {" "}
+                      GET
+                    </Option>
+                    <Option value={3} key={3}>
+                      {" "}
+                      PUT
+                    </Option>
+                    <Option value={4} key={4}>
+                      {" "}
+                      DELETE
+                    </Option>
+                    <Option value={5} key={5}>
+                      {" "}
+                      PATCH
+                    </Option>
+                  </Select>,
+                ];
+              },
+            },
+            titleHelp: { message: "请求方式必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请选择请求方式" },
+            },
+          },
+          {
+            field: "group_name",
+            align:"center",
+            title: "接口状态",
+            sortable: true,
+            filters: [{ data: "" }],
+            slots: {
+              default: ({ row }) => {
+                switch (row.status) {
+                  case 1:
+                    return [<Tag attrs={{ color: "success" }}>启用</Tag>];
+                  case 0:
+                    return [<Tag attrs={{ color: "error" }}>禁用</Tag>];
+                }
+              },
+              filter: "input_filter",
+              edit: ({ row }) => {
+                return [
+                  <Select v-model={row.status} style="width:200px">
+                    <Option value={1} key={1}>
+                      启用
+                    </Option>
+                    <Option value={0} key={0}>
+                      禁用
+                    </Option>
+                  </Select>
+                ];
+              },
+            },
+            titleHelp: { message: "接口状态必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请选择接口状态" },
+            },
+          },
+          {
+            title: "操作",
+            align:"center",
+            width: 500,
+            showOverflow: true,
+            slots: {
+              default: (params, h) => {
+                console.log("params", params);
+                return [
+                  <div>
+                    {createButton(this, h, params.row, params.rowIndex)}
+                    {editButton(this, h, params.row, params.rowIndex)}
+                    {requestButton(this, h, params.row, params.rowIndex)}
+                    {responseButton(this, h, params.row, params.rowIndex)}
+                    {deleteButton(this, h, params.row, params.rowIndex)}
+                  </div>,
+                ];
+              },
+            },
+          },
+        ],
+        checkboxConfig: {
+          labelField: "id",
+          reserve: true,
+          highlight: true,
+          range: true,
+        },
+        editRules: {
+          app_name: [
+            { required: true, message: "应用名称必须填写！" },
+          ],
+          info: [
+            { required: true, message: "接口名称必须填写！" },
+          ],
+          api_class: [
+            { required: true, message: "真实类库必须填写！" },
+          ],
+          des: [
+            { required: true, message: "接口说明必须填写！" },
+          ],
+          group_name: [
+            { required: true, message: "接口分组必须填写！" },
+          ],
+          method: [
+            { required: true, message: "请求方式必须填写！" },
+          ],
+          group_name: [
+            { required: true, message: "接口状态必须填写！" },
+          ]
+        },
+        editConfig: {
+          trigger: "click",
+          mode: "row",
+          showStatus: true,
+        },
+      };
+    },
+    interface_grid_list_options() {
+      return {
+        border: true,
+        columnKey: true,
+        showFooter: true,
+        class: "sortable-column-demo",
+        scrollX: {
+          enabled: false,
+        },
+        toolbarConfig: {
+          custom: true,
+        },
+        data: this.tableData,
+      };
+    },
+  },
   data() {
     return {
       chooseAppModal: false,
@@ -672,6 +1049,7 @@ export default {
     getAppList().then((response) => {
       vm.appList = response.data.data;
     });
+    this.columnDrop2();
   },
   activated() {
     let vm = this;
@@ -684,6 +1062,57 @@ export default {
     });
   },
   methods: {
+    changeFilterEvent(evnt, option, $panel) {
+      $panel.changeOption(evnt, !!option.data, option);
+    },
+    columnDrop2() {
+      this.$nextTick(() => {
+        const $table = this.$refs.xGrid2;
+        this.sortable2 = Sortable.create(
+          $table.$el.querySelector(
+            ".body--wrapper>.vxe-table--header .vxe-header--row"
+          ),
+          {
+            handle: ".vxe-header--column:not(.col--fixed)",
+            onEnd: ({ item, newIndex, oldIndex }) => {
+              const { fullColumn, tableColumn } = $table.getTableColumn();
+              const targetThElem = item;
+              const wrapperElem = targetThElem.parentNode;
+              const newColumn = fullColumn[newIndex];
+              if (newColumn.fixed) {
+                // 错误的移动
+                if (newIndex > oldIndex) {
+                  wrapperElem.insertBefore(
+                    targetThElem,
+                    wrapperElem.children[oldIndex]
+                  );
+                } else {
+                  wrapperElem.insertBefore(
+                    wrapperElem.children[oldIndex],
+                    targetThElem
+                  );
+                }
+                return this.$XModal.message({
+                  content: "固定列不允许拖动！",
+                  status: "error",
+                });
+              }
+              // 转换真实索引
+              const oldColumnIndex = $table.getColumnIndex(
+                tableColumn[oldIndex]
+              );
+              const newColumnIndex = $table.getColumnIndex(
+                tableColumn[newIndex]
+              );
+              // 移动到目标列
+              const currRow = fullColumn.splice(oldColumnIndex, 1)[0];
+              fullColumn.splice(newColumnIndex, 0, currRow);
+              $table.loadColumn(fullColumn);
+            },
+          }
+        );
+      });
+    },
     // 选择应用
     handleAppChange(item) {
       console.log(item);
@@ -818,6 +1247,11 @@ export default {
           vm.refreshLoading = false;
         });
     },
+  },
+  beforeDestroy() {
+    if (this.sortable2) {
+      this.sortable2.destroy();
+    }
   },
 };
 </script>
