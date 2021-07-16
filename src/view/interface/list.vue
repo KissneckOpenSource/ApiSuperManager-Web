@@ -5,7 +5,7 @@
   <div>
     <Row>
       <Col span="24">
-      <Card class="margin-bottom-10">
+      <Card class="margin-bottom-10" v-if="$store.state.app.advanceMode == 1">
         <Form inline>
           <FormItem class="margin-bottom-0">
             <Select v-model="searchConf.status" clearable placeholder='请选择状态' style="width:120px">
@@ -48,13 +48,13 @@
     <Row>
       <Col span="24">
       <Card>
-        <div class="margin-bottom-15">
+        <div class="margin-bottom-15" v-if="$store.state.app.advanceMode == 1">
           <Button type="primary" v-has="'InterfaceList/add'" @click="alertAdd" icon="md-add">{{ $t('add_button') }}</Button>
           <Button type="warning" v-has="'InterfaceList/refresh'" class="margin-left-5" @click="handleShowChooseApp" icon="md-refresh">刷新路由</Button>
           <Button type="info" class="margin-left-5" to="/wiki/list" icon="md-bookmarks">接口文档</Button>
         </div>
-        <div>
-          <vxe-grid ref="xGrid2" v-bind="gridOptions">
+        <div >
+          <vxe-grid ref="xGrid2" v-bind="gridOptions" v-if="$store.state.app.advanceMode == 2">
             <template #input_filter="{ column, $panel }">
               <div>
                 <div v-for="(option, index) in column.filters" :key="index">
@@ -63,16 +63,16 @@
               </div>
             </template>
           </vxe-grid>
-          <Table :loading="listLoading" :columns="columnsList" :data="tableData" border disabled-hover></Table>
+          <Table :loading="listLoading" :columns="columnsList" :data="tableData" border disabled-hover v-if="$store.state.app.advanceMode == 1"></Table>
         </div>
-        <div class="margin-top-15" style="text-align: center">
+        <div class="margin-top-15" style="text-align: center" v-if="$store.state.app.advanceMode == 1">
           <Page :total="tableShow.listCount" :current="tableShow.currentPage" :page-size="tableShow.pageSize" @on-change="changePage" :page-size-opts="[20, 30, 40, 50]" @on-page-size-change="changeSize" show-elevator
             show-sizer show-total></Page>
         </div>
       </Card>
       </Col>
     </Row>
-    <Modal v-model="modalSetting.show" width="668" :styles="{top: '30px'}" @on-visible-change="doCancel">
+    <Modal :mask-closable="false" :closable="false" v-model="modalSetting.show" width="668" :styles="{top: '30px'}" @on-visible-change="doCancel">
       <p slot="header" style="color:#2d8cf0">
         <Icon type="md-alert"></Icon>
         <span>{{formItem.id ? '编辑' : '新增'}}接口</span>
@@ -102,8 +102,18 @@
             <Option v-for="(v, i) in typeGroup" :value="v.value" :kk="i" :key="v.value"> {{v.name}}</Option>
           </Select>
         </FormItem>
-        <FormItem label="请求方式" prop="method">
-          <Select v-model="formItem.method" style="width:200px">
+        <FormItem label="路由类型" prop="router_type">
+          <Select v-model="formItem.router_type" style="width:200px" :key="updateView" @on-change="handleUpdateView">
+            <Option :value="1" :key="1">
+              资源路由
+            </Option>
+            <Option :value="0" :key="0">
+              一般接口
+            </Option>
+          </Select>
+        </FormItem>
+        <FormItem label="请求方式" prop="method" >
+          <Select v-model="formItem.method" style="width:200px" :key="updateView" :disabled="formItem.router_type == 1">
             <Option :value="0" :key="0"> 不限</Option>
             <Option :value="1" :key="1"> POST</Option>
             <Option :value="2" :key="2"> GET</Option>
@@ -161,7 +171,7 @@
         <Button type="primary" @click="submit" :loading="modalSetting.loading">确定</Button>
       </div>
     </Modal>
-    <Modal v-model="chooseAppModal" width="370">
+    <Modal v-model="chooseAppModal" width="370" :closable="false" :mask-closable="false">
       <p slot="header" style="color:#2d8cf0;text-align:center">
         <Icon type="information-circled"></Icon>
         <span>选择应用</span>
@@ -179,7 +189,7 @@
         <Button type="primary" @click="confirmApp">确定</Button>
       </div>
     </Modal>
-    <Modal v-model="confirmRefresh" width="360">
+    <Modal v-model="confirmRefresh" width="360" :closable="false" :mask-closable="false">
       <p slot="header" style="color:#f60;text-align:center">
         <Icon type="information-circled"></Icon>
         <span>确定要刷新路由么</span>
@@ -390,27 +400,28 @@ export default {
       return {
         border: true,
         resizable: true,
-        showHeaderOverflow: true,
+        stripe:true,
+        showHeaderOverflow: false,
         showOverflow: true,
         highlightHoverRow: true,
         keepSource: true,
         id: "full_edit_1",
-        height: 600,
+        height: 1000,
         rowId: "id",
         customConfig: {
           storage: true,
           checkMethod: this.checkColumnMethod,
         },
         sortConfig: {
-          trigger: "cell",
+          trigger: "default",
           remote: true,
         },
         filterConfig: {
           remote: true,
         },
         pagerConfig: {
-          pageSize: 20,
-          pageSizes: [5, 10, 15, 20, 50, 100, 200, 500, 1000],
+          pageSize: 40, //每页大小
+          pageSizes: [5, 10, 15, 20, 50, 100, 200, 500, 1000], //每页大小选项列表
         },
         toolbarConfig: {
           buttons: [
@@ -441,7 +452,10 @@ export default {
           ajax: {
             // 接收 Promise 对象
             query: ({ page, sorts, filters, form }) => {
+              console.log('query',page)
               const queryParams = Object.assign({}, form);
+              queryParams.page = page.currentPage;
+              queryParams.size = page.pageSize;
               console.log("queryParams", queryParams);
               console.log("sorts", sorts);
               console.log("filters", queryParams);
@@ -480,7 +494,13 @@ export default {
               let pendingPromiseList = [];
               let removePromiseList = [];
               let updatePromiseList = [];
-              insertRecords.forEach((e, idx) => {
+              insertRecords.forEach(async (e, idx) => {
+                console.log('await getHash()',)
+                let res = await getHash()
+                e.hash = res.data.data.hash
+                e.is_test = 0
+                e.hash_type = 2
+                e.access_token = 0
                 insertPromiseList[idx] = add(e);
               });
               // pendingPromiseList.forEach((e, idx) => {
@@ -497,31 +517,66 @@ export default {
                 ...pendingPromiseList,
                 ...removePromiseList,
                 ...updatePromiseList,
-              ]);
+              ]).then(() => {
+                this.getList();
+              });
             },
           },
         },
         columns: [
-          { type: "checkbox", title: "ID", width: 200 ,align:"center"},
+          { type: "checkbox", title: "ID", minWidth : '100px', width: '100px', align: "center" },
           {
-            field: "app_name",
-            align:"center",
+            field: "app_group_id",
+            align: "center",
             title: "应用名称",
+            minWidth: '180px',
+            width: '180px',
             sortable: true,
             filters: [{ data: "" }],
             slots: {
+              default: ({row}) => {
+                return [
+                  <span>
+                  {
+                    this.appList.findIndex(e => e.id == row.app_group_id) > -1?
+                    this.appList[(this.appList.findIndex(e => e.id == row.app_group_id))].app_name
+                    :'非法或未填写'
+                  }
+                  </span>
+                ]
+              },
               filter: "input_filter",
+              edit: ({ row }) => {
+                return [
+                  <Select
+                    v-model={row.app_group_id}
+                    placeholder="请选择应用"
+                    filterable
+                    filter-by-label
+                  >
+                    {this.appList.map((v,i) => {
+                      return (
+                        <Option value={v.id} key={v.id} kk={i} label={v.app_name} onClick={row.app_group_hash = v.app_group}>
+                          {v.app_name}
+                        </Option>
+                      );
+                    })}
+                  </Select>,
+                ];
+              },
             },
             titleHelp: { message: "应用名称必须填写！" },
             editRender: {
               name: "input",
               attrs: { placeholder: "请输入应用名称" },
-            }
+            },
           },
           {
             field: "info",
-            align:"center",
+            align: "center",
             title: "接口名称",
+            minWidth: '180px',
+            width: '180px',
             sortable: true,
             filters: [{ data: "" }],
             slots: {
@@ -535,8 +590,10 @@ export default {
           },
           {
             field: "api_class",
-            align:"center",
+            align: "center",
             title: "真实类库",
+            minWidth: '180px',
+            width: '180px',
             sortable: true,
             filters: [{ data: "" }],
             slots: {
@@ -550,8 +607,9 @@ export default {
           },
           {
             field: "des",
-            align:"center",
+            align: "center",
             title: "接口说明",
+            minWidth: '180px',
             sortable: true,
             filters: [{ data: "" }],
             slots: {
@@ -564,13 +622,41 @@ export default {
             },
           },
           {
-            field: "group_name",
-            align:"center",
+            field: "group_hash",
+            align: "center",
             title: "接口分组",
+            minWidth: '180px',
+            width: '180px',
             sortable: true,
             filters: [{ data: "" }],
             slots: {
+              default: ({row}) => {
+                return [
+                  <span>
+                  {
+                    this.apiGroup.findIndex(e => e.hash == row.group_hash) > -1?
+                    this.apiGroup[(this.apiGroup.findIndex(e => e.hash == row.group_hash))].name
+                    :'非法或未填写'
+                  }
+                  </span>
+                ]
+              },
               filter: "input_filter",
+              edit: ({row}) => {
+                return [
+                  <Select v-model={row.group_hash} clearable placeholder="请选择接口分组" filterable filter-by-label>
+                    {
+                      this.apiGroup.map((v,i) => {
+                        return (
+                          <Option value={v.hash} key={v.hash} kk={i} label={v.name}>
+                            {v.name}
+                          </Option>
+                        )
+                      })
+                    }
+                  </Select>
+                ]
+              }
             },
             titleHelp: { message: "接口分组必须填写！" },
             editRender: {
@@ -579,10 +665,51 @@ export default {
             },
           },
           {
+            field: "router_type",
+            align: "center",
+            title: "路由类型",
+            sortable: true,
+            minWidth: '180px',
+            width: '180px',
+            filters: [
+              { label: "资源路由", value: 1 },
+              { label: "一般接口", value: 0 },
+            ],
+            slots: {
+              default: ({ row }) => {
+                switch (row.router_type) {
+                  case 1:
+                    return [<Tag attrs={{ color: "warning" }}>资源路由</Tag>];
+                  case 0:
+                    return [<Tag attrs={{ color: "primary" }}>一般接口</Tag>];
+                }
+              },
+              edit: ({ row,column }) => {
+                return [
+                  <Select v-model={row.router_type} on-change={row.method = undefined}>
+                    <Option value={1} key={1}>
+                      资源路由
+                    </Option>
+                    <Option value={0} key={0}>
+                      一般接口
+                    </Option>
+                  </Select>,
+                ];
+              },
+            },
+            titleHelp: { message: "资源路由必须填写！" },
+            editRender: {
+              name: "input",
+              attrs: { placeholder: "请选择资源路由" },
+            },
+          },
+          {
             field: "method",
             title: "请求方式",
-            align:"center",
+            align: "center",
             sortable: true,
+            minWidth: '180px',
+            width: '180px',
             filters: [
               { label: "不限", value: "0" },
               { label: "POST", value: "1" },
@@ -614,7 +741,7 @@ export default {
               },
               edit: ({ row }) => {
                 return [
-                  <Select v-model={row.method} style="width:200px">
+                  <Select v-model={row.method} disabled={row.router_type == 1} key={row.router_type}>
                     <Option value={0} key={0}>
                       {" "}
                       不限
@@ -650,10 +777,12 @@ export default {
             },
           },
           {
-            field: "group_name",
-            align:"center",
+            field: "status",
+            align: "center",
             title: "接口状态",
             sortable: true,
+            minWidth: '180px',
+            width: '180px',
             filters: [{ data: "" }],
             slots: {
               default: ({ row }) => {
@@ -667,14 +796,14 @@ export default {
               filter: "input_filter",
               edit: ({ row }) => {
                 return [
-                  <Select v-model={row.status} style="width:200px">
+                  <Select v-model={row.status}>
                     <Option value={1} key={1}>
                       启用
                     </Option>
                     <Option value={0} key={0}>
                       禁用
                     </Option>
-                  </Select>
+                  </Select>,
                 ];
               },
             },
@@ -686,12 +815,12 @@ export default {
           },
           {
             title: "操作",
-            align:"center",
-            width: 500,
+            align: "center",
+            width: '500px',
             showOverflow: true,
+            fixed: 'right',
             slots: {
               default: (params, h) => {
-                console.log("params", params);
                 return [
                   <div>
                     {createButton(this, h, params.row, params.rowIndex)}
@@ -699,7 +828,7 @@ export default {
                     {requestButton(this, h, params.row, params.rowIndex)}
                     {responseButton(this, h, params.row, params.rowIndex)}
                     {deleteButton(this, h, params.row, params.rowIndex)}
-                  </div>,
+                  </div>
                 ];
               },
             },
@@ -712,27 +841,13 @@ export default {
           range: true,
         },
         editRules: {
-          app_name: [
-            { required: true, message: "应用名称必须填写！" },
-          ],
-          info: [
-            { required: true, message: "接口名称必须填写！" },
-          ],
-          api_class: [
-            { required: true, message: "真实类库必须填写！" },
-          ],
-          des: [
-            { required: true, message: "接口说明必须填写！" },
-          ],
-          group_name: [
-            { required: true, message: "接口分组必须填写！" },
-          ],
-          method: [
-            { required: true, message: "请求方式必须填写！" },
-          ],
-          group_name: [
-            { required: true, message: "接口状态必须填写！" },
-          ]
+          app_group_id: [{ required: true, message: "应用必须填写！" }],
+          info: [{ required: true, message: "接口名称必须填写！" }],
+          api_class: [{ required: true, message: "真实类库必须填写！" }],
+          des: [{ required: true, message: "接口说明必须填写！" }],
+          group_name: [{ required: true, message: "接口分组必须填写！" }],
+          router_type: [{ required: true, message: "路由类型必须填写！" }],
+          status: [{ required: true, message: "接口状态必须填写！" }],
         },
         editConfig: {
           trigger: "click",
@@ -759,6 +874,7 @@ export default {
   },
   data() {
     return {
+      updateView: 0,
       chooseAppModal: false,
       app_group_id: "",
       app_group_hash: "",
@@ -807,6 +923,18 @@ export default {
           align: "center",
           key: "group_name",
           minWidth: 140,
+        },
+        {
+          title: "路由方式",
+          align: "center",
+          width: 105,
+          render: (h, params) => {
+            if (params.row.router_type === 1) {
+              return [<Tag attrs={{ color: "warning" }}>资源路由</Tag>];
+            } else {
+              return [<Tag attrs={{ color: "primary" }}>资源路由</Tag>];
+            }
+          },
         },
         {
           title: "请求方式",
@@ -1049,7 +1177,11 @@ export default {
     getAppList().then((response) => {
       vm.appList = response.data.data;
     });
-    this.columnDrop2();
+    try{
+      this.columnDrop2();
+    }catch(e){
+
+    }
   },
   activated() {
     let vm = this;
@@ -1062,6 +1194,13 @@ export default {
     });
   },
   methods: {
+    handleUpdateView(e){
+      this.updateView++
+      console.log('e',e)
+      if(e == 1){
+        this.formItem.method = undefined
+      }
+    },
     changeFilterEvent(evnt, option, $panel) {
       $panel.changeOption(evnt, !!option.data, option);
     },

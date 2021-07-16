@@ -8,7 +8,7 @@ import {
   routeHasExist,
   routeEqual,
   getRouteTitleHandled,
-  localSave,
+  localSave,  
   localRead
 } from '@/libs/util'
 import router from '@/router'
@@ -30,7 +30,8 @@ export default {
     homeRoute: {},
     local: localRead('local'),
     errorList: [],
-    hasReadErrorPage: false
+    hasReadErrorPage: false,
+    advanceMode: 2,
   },
   getters: {
     menuList: (state, getters, rootState) => {
@@ -43,6 +44,9 @@ export default {
     errorCount: state => state.errorList.length
   },
   mutations: {
+    setAdvanceMode(state,value){
+      state.advanceMode = value;
+    },
     setBreadCrumb (state, route) {
       state.breadCrumbList = getBreadCrumbList(route, state.homeRoute)
     },

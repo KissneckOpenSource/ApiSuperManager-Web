@@ -21,7 +21,7 @@ class HttpRequest {
     // 响应拦截
     instance.interceptors.response.use(res => {
       const { data, status } = res
-      if (data.code < 0 && data.code != -1) {
+      if (data.code < 0) {
         if (data.code === -14) {
           setToken('')
           router.push({ name: 'login' })
@@ -57,7 +57,7 @@ class HttpRequest {
         }
       }, options)
     }
-    console.log('request')
+    // console.log('request')
     this.interceptors(instance)
     return instance(options)
   }
