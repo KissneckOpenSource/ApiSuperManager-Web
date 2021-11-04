@@ -1075,6 +1075,7 @@ export default {
           title: "操作",
           align: "center",
           minWidth: 500,
+          fixed: 'right',
           render: (h, params) => {
             return h("div", [
               createButton(this, h, params.row, params.index),
