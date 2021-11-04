@@ -286,19 +286,24 @@
                 </Select>
               </div>
             </FormItem>
-            <FormItem label="填写地址">
-              <div class="interface-test-url">
+            <!-- <FormItem label="填写地址">
+              <div class="interface-test-url"> -->
                 <!-- <Alert class="url">{{url}}</Alert> -->
-                <Alert class="url"><Input v-model="requestURLPrefix" placeholder=""
-                    style="width: calc(50% - 100px);"></Input>
-                  {{requestURL}}<Input v-model="requestURLSuffix" placeholder=""
+                <!-- <Alert class="url"><Input v-model="requestURLPrefix" placeholder=""
+                    style="width: calc(50% - 100px);"></Input> -->
+                  <!-- {{requestURL}}<Input v-model="requestURLSuffix" placeholder=""
                     style="width: calc(50% - 100px);"></Input></Alert>
               </div>
-            </FormItem>
+            </FormItem> -->
             <FormItem label="请求地址">
               <div class="interface-test-url">
                 <!-- <Alert class="url">{{url}}</Alert> -->
-                <Alert class="url">{{ requestURLPrefix + requestURL }}</Alert>
+                <!-- <Alert class="url">{{ requestURLPrefix + requestURL }}</Alert> -->
+                <Alert class="url">
+                {{url}}<Input v-model="requestURLSuffix" placeholder=""
+                style="width: calc(50% - 100px);" v-if="route_index!=''"></Input>
+                <span v-if="last_c">{{last_c}}</span>
+              </Alert>
                 <Button type="primary" @click="sendRequset">发送请求</Button>
               </div>
             </FormItem>
@@ -365,9 +370,11 @@
         app_id: sessionStorage.getItem('ApiAdmin_AppInfo'),
         code: '',
         url: '',
+        last_c:'',
+        route_index:'',
         requestURL: '',
         requestURLPrefix: '',
-        requestURLSuffix: '',
+        requestURLSuffix: ':id',
         groupInfo: [],
         header_columns: [
           {
@@ -610,8 +617,8 @@
         console.log('请求参数：', vm.getData(methodsObject[vm.testForm.method]))
         let options = {
           method: methodsObject[vm.testForm.method],
-          url: vm.requestURLPrefix + vm.requestURL,
-          headers: vm.getHeader()
+          url: vm.last_c ? vm.requestURLSuffix == ':id'? vm.url +"" +vm.last_c :vm.url +vm.requestURLSuffix +vm.last_c: vm.requestURLSuffix == ':id'? vm.url +"":vm.url +vm.requestURLSuffix,
+          headers: vm.getHeader(),
         }
         if (options.method === 'get') {
           let params = vm.getData(methodsObject[vm.testForm.method])
@@ -637,8 +644,9 @@
           }
           console.log('error: ', error)
         })
+        console.log(vm.url);
         var Mock = require("mockjs");
-          var data = Mock.mock(vm.requestURLPrefix + vm.requestURL);
+          var data = Mock.mock(vm.url);
       },
       getHeader() {
         let vm = this
@@ -696,6 +704,7 @@
           vm.appinfo = response.data.data.appinfo
           vm.co = response.data.data.co
           vm.firstLoad = true
+          console.log('查看',vm.groupInfo);
         })
       },
       closeDrawer() {
@@ -714,7 +723,9 @@
           vm.show_detail = true
           vm.show_loading = false
           vm.url = res.url
-          vm.requestURL = res.apiList.api_class
+          vm.last_c = res.end_index
+          vm.route_index=res.route_index
+          vm.requestURL = res.apiList.url
           vm.api_detail = res.apiList
           if (res.apiList.return_str) {
             vm.code = JSON.parse(res.apiList.return_str)
