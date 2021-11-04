@@ -81,7 +81,7 @@
         <FormItem label="接口名称" prop="info">
           <Input v-model="formItem.info" placeholder="请输入接口名称"></Input>
         </FormItem>
-        <FormItem label="应用" prop="app_group_hash">
+        <FormItem label="应用" prop="app_group_id">
           <Select v-model="formItem.app_group_id" style="width:200px" placeholder="请选择应用">
             <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group" @click.native="handleAppChange(v)"> {{v.app_name}}</Option>
           </Select>
@@ -151,7 +151,7 @@
             <Option :value="1" :key="1"> 普通模式</Option>
             <Option :value="2" :key="2"> 加密模式</Option>
           </Select>
-          <Tooltip placement="right" max-width="800">Î
+          <Tooltip placement="right" max-width="800">
             <Icon type="md-help-circle" class="margin-left-5" color="#2d8cf0" size="20" />
             <div slot="content">
               <p>普通模式：接口将不采用hash映射，会直接使用真实类库来请求。</p>
@@ -226,7 +226,7 @@ const editButton = (vm, h, currentRow, index) => {
         props: {
           type: "primary",
         },
-        style: {
+        style: { 
           margin: "0 5px",
         },
         on: {
@@ -308,6 +308,8 @@ const createButton = (vm, h, currentRow, index) => {
             console.log("currentRow: ", currentRow);
             let data = {
               id: currentRow.id,
+              api_class:currentRow.api_class,
+              method:currentRow.method,
               type: 1,
             };
             createFile(data).then((response) => {
@@ -499,7 +501,7 @@ export default {
                 let res = await getHash()
                 e.hash = res.data.data.hash
                 e.is_test = 0
-                e.hash_type = 2
+                e.hash_type = 1
                 e.access_token = 0
                 insertPromiseList[idx] = add(e);
               });
@@ -1120,13 +1122,14 @@ export default {
         des: "", //接口描述
         group_hash: "default",
         method: 2,
-        hash_type: 2,
+        hash_type: 1,
         hash: "",
         access_token: 0,
         is_test: 0,
         id: 0,
         app_group_hash: "", // 应用hash
-        app_group_id: "", // 应用id
+        app_group_id: 1, // 应用id
+        router_type:0,
       },
       ruleValidate: {
         api_class: [
@@ -1136,9 +1139,9 @@ export default {
         info: [
           { required: true, message: "接口名称不能为空", trigger: "blur" },
         ],
-        app_group_hash: [
-          { required: true, message: "应用不能为空", trigger: "blur" },
-        ],
+        // app_group_id: [
+        //   { required: true, message: "应用不能为空", trigger: "blur" },
+        // ],
       },
       buttonShow: {
         edit: true,
@@ -1292,6 +1295,7 @@ export default {
     },
     submit() {
       let vm = this;
+      console.log('查看',vm.formItem, vm.$refs["myForm"]);
       this.$refs["myForm"].validate((valid) => {
         if (valid) {
           vm.modalSetting.loading = true;
@@ -1323,6 +1327,21 @@ export default {
     },
     cancel() {
       this.modalSetting.show = false;
+      this.formItem= {
+        api_class: "",
+        info: "",
+        des: "", //接口描述
+        group_hash: "default",
+        method: 2,
+        hash_type: 1,
+        hash: "",
+        access_token: 0,
+        is_test: 0,
+        id: 0,
+        app_group_hash: "", // 应用hash
+        app_group_id: 1, // 应用id
+        router_type:0,
+      }
     },
     changePage(page) {
       this.tableShow.currentPage = page;

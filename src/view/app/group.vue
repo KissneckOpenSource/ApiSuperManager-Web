@@ -52,11 +52,11 @@
         <span>{{formItem.id ? '编辑' : '新增'}}应用组</span>
       </p>
       <Form ref="myForm" :rules="ruleValidate" :model="formItem" :label-width="80">
-        <FormItem label="应用" prop="app_id">
+        <!-- <FormItem label="应用" prop="app_id">
           <Select v-model="formItem.app_id" style="width:200px" placeholder="请选择应用" filterable>
             <Option v-for="(v, i) in appList" :value="v.app_id" :key="i" @click.native="handleAppChange(v)">{{v.app_name}}</Option>
           </Select>
-        </FormItem>
+        </FormItem> -->
         <FormItem label="组名称" prop="name">
           <Input v-model="formItem.name" placeholder="请输入应用组名称"></Input>
         </FormItem>
