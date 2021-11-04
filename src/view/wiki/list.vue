@@ -32,7 +32,9 @@
         </div>
       </template>
       <template v-else>
-        <div class="wiki-logo" v-if="appinfo.app_id == -1" @click="$router.push({name: 'home'})">首页</div>
+        <div class="wiki-logo" v-if="appinfo.app_id == -1" @click="$router.push({ name: 'home' })">
+          首页
+        </div>
         <div class="wiki-logo" v-else>接口文档</div>
       </template>
       <div class="wiki-nav">
@@ -51,7 +53,7 @@
         <Submenu name="4">
           <template slot="title">
             <Icon type="ios-contact" />
-            {{app_id}}
+            {{ app_id }}
           </template>
           <MenuItem name="4-1" @click.native="logout">
           <Icon type="md-exit" />
@@ -88,96 +90,131 @@
               <span v-bind:key="api_index" v-for="(api_item, api_index) in item.api_info"
                 @click="showApiDetail(api_item.hash)" style="cursor:pointer">
                 <Alert type="warning" v-if="api_item.method === 0">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <h3>
+                    /api/{{
+                    api_item.hash_type === 1
+                    ? api_item.api_class
+                    : api_item.hash
+                    }}
+                  </h3>
                   <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
+                    <div style="display: flex; flex-direction: column">
                       <div>
                         <Tag color="warning">不限</Tag>
-                        {{api_item.info}}
+                        {{ api_item.info }}
                       </div>
                       <div>
                         <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
+                        {{ api_item.des || "无" }}
                       </div>
                     </div>
                   </template>
                 </Alert>
                 <Alert type="success" v-if="api_item.method === 1">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <h3>
+                    /api/{{
+                    api_item.hash_type === 1
+                    ? api_item.api_class
+                    : api_item.hash
+                    }}
+                  </h3>
                   <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
+                    <div style="display: flex; flex-direction: column">
                       <div>
                         <Tag color="success">POST</Tag>
-                        {{api_item.info}}
+                        {{ api_item.info }}
                       </div>
                       <div>
                         <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
+                        {{ api_item.des || "无" }}
                       </div>
                     </div>
                   </template>
                 </Alert>
                 <Alert v-if="api_item.method === 2">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <h3>
+                    /api/{{
+                    api_item.hash_type === 1
+                    ? api_item.api_class
+                    : api_item.hash
+                    }}
+                  </h3>
                   <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
+                    <div style="display: flex; flex-direction: column">
                       <div>
                         <Tag color="primary">GET</Tag>
-                        {{api_item.info}}
+                        {{ api_item.info }}
                       </div>
                       <div>
                         <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
+                        {{ api_item.des || "无" }}
                       </div>
                     </div>
                   </template>
                 </Alert>
                 <Alert v-if="api_item.method === 3">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <h3>
+                    /api/{{
+                    api_item.hash_type === 1
+                    ? api_item.api_class
+                    : api_item.hash
+                    }}
+                  </h3>
                   <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
+                    <div style="display: flex; flex-direction: column">
                       <div>
                         <Tag color="green">PUT</Tag>
-                        {{api_item.info}}
+                        {{ api_item.info }}
                       </div>
                       <div>
                         <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
+                        {{ api_item.des || "无" }}
                       </div>
                     </div>
                   </template>
                 </Alert>
                 <Alert v-if="api_item.method === 4">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <h3>
+                    /api/{{
+                    api_item.hash_type === 1
+                    ? api_item.api_class
+                    : api_item.hash
+                    }}
+                  </h3>
                   <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
+                    <div style="display: flex; flex-direction: column">
                       <div>
                         <Tag color="error">DELETE</Tag>
-                        {{api_item.info}}
+                        {{ api_item.info }}
                       </div>
                       <div>
                         <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
+                        {{ api_item.des || "无" }}
                       </div>
                     </div>
                   </template>
                 </Alert>
                 <Alert v-if="api_item.method === 5">
-                  <h3>/api/{{api_item.hash_type === 1 ? api_item.api_class : api_item.hash}}</h3>
+                  <h3>
+                    /api/{{
+                    api_item.hash_type === 1
+                    ? api_item.api_class
+                    : api_item.hash
+                    }}
+                  </h3>
                   <template slot="desc">
-                    <div style="display:flex;flex-direction:column">
+                    <div style="display: flex; flex-direction: column">
                       <div>
                         <Tag color="gold">PATCH</Tag>
-                        {{api_item.info}}
+                        {{ api_item.info }}
                       </div>
                       <div>
                         <Tag color="red">接口说明</Tag>
-                        {{api_item.des || '无'}}
+                        {{ api_item.des || "无" }}
                       </div>
                     </div>
                   </template>
                 </Alert>
-
               </span>
             </p>
             <p slot="content" v-else style="text-align: center">
@@ -205,7 +242,7 @@
               <Alert class="url">······{{api_detail.api_class}}</Alert>
             </FormItem>
             <FormItem label="接口说明">
-              <Alert type="success">{{api_detail.des || '无'}}</Alert>
+              <Alert type="success">{{ api_detail.des || "无" }}</Alert>
             </FormItem>
             <FormItem label="Headers">
               <Table border :columns="header_columns" :data="header_data"></Table>
@@ -223,7 +260,7 @@
             </FormItem>
           </Form>
         </TabPane>
-        <TabPane label="接口测试" style="position: relative;">
+        <TabPane label="接口测试" style="position: relative">
           <!-- <Card style="width:100%">
             <div style="text-align:center">
               <img width="120px" src="https://cn.vuejs.org/images/logo.png">
@@ -240,7 +277,7 @@
           <Form :label-width="80">
             <FormItem label="请求方式">
               <div class="interface-test-url">
-                <Select v-model="testForm.method" style="width:300px; margin-bottom: 10px;">
+                <Select v-model="testForm.method" style="width: 300px; margin-bottom: 10px">
                   <Option :value="2">GET</Option>
                   <Option :value="1">POST</Option>
                   <Option :value="3">PUT</Option>
@@ -261,7 +298,7 @@
             <FormItem label="请求地址">
               <div class="interface-test-url">
                 <!-- <Alert class="url">{{url}}</Alert> -->
-                <Alert class="url">{{requestURLPrefix + requestURL}}</Alert>
+                <Alert class="url">{{ requestURLPrefix + requestURL }}</Alert>
                 <Button type="primary" @click="sendRequset">发送请求</Button>
               </div>
             </FormItem>
@@ -600,6 +637,8 @@
           }
           console.log('error: ', error)
         })
+        var Mock = require("mockjs");
+          var data = Mock.mock(vm.requestURLPrefix + vm.requestURL);
       },
       getHeader() {
         let vm = this
