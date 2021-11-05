@@ -20,7 +20,7 @@
   }
 
   .showall {
-    margin-top: 20px;
+    margin-top: 10px;
   }
 </style>
 <template>
@@ -77,9 +77,23 @@
           </p>
         </div>
       </Card>
-      <div class="showall">
-        <Button type="primary" @click="Panelopen">展开/收缩</Button>
-      </div>
+      <Card class="margin-bottom-10" style="margin-top: 10px;">
+      <Form ref="myForm" :rules="ruleValidate" :model="searchConf" inline :label-width="90">
+        <FormItem class="margin-bottom-0" label="应用分组" prop="app_group_id">
+          <Select v-model="searchConf.app_group_id" clearable placeholder="请选择应用分组" style="width:200px" filterable>
+            <Option v-for="(v, i) in appGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
+          </Select>
+        </FormItem>
+        <FormItem class="margin-bottom-0" label="接口名称" prop="interface_name">
+          <Input v-model="searchConf.interface_name" placeholder="请输入接口名称" clearable></Input>
+        </FormItem>
+        <FormItem class="margin-bottom-0" label="真实类库" prop="api_class">
+          <Input v-model="searchConf.api_class" placeholder="请输入真实类库" clearable></Input>
+        </FormItem>
+        <Button type="primary" @click="search">{{ $t('find_button') }}/{{ $t('refresh_button') }}</Button>
+        <Button type="success" @click="Panelopen" style="margin-left: 10px;">展开/收缩</Button>
+      </Form>
+    </Card>
       <div class="wiki-layout-con">
         <Spin size="large" fix v-if="show_loading"></Spin>
         <Collapse v-model="Panelvalue">
@@ -353,6 +367,7 @@
   import ABackTop from '@/components/main/components/a-back-top'
   import JsonViewer from 'vue-json-viewer'
   import axios from 'axios'
+  import { getAll } from "@/api/app-group";
   export default {
     name: 'wiki',
     components: {
@@ -565,10 +580,21 @@
         updateCounter: 0, // 代码更新
         Panelvalue: [],
         showAll: false,
+        searchConf:{
+          app_group_id:"",
+          interface_name:"",
+          api_class:"",
+        },
+        appGroup:[],
       }
     },
     created() {
+      let vm = this;
       this.getList()
+      getAll().then((response)=>{
+        vm.appGroup = response.data.data.list;
+        console.log('appgroup',vm.appGroup);
+      })
     },
     mounted() {
     },
@@ -699,13 +725,17 @@
       },
       getList() {
         let vm = this
-        apiGroup().then(response => {
+        apiGroup({
+          app_group_id:vm.searchConf.app_group_id,
+          interface_name:vm.searchConf.interface_name,
+          api_class:vm.searchConf.api_class
+        }).then(response => {
           vm.groupInfo = response.data.data.data
           vm.appinfo = response.data.data.appinfo
           vm.co = response.data.data.co
           vm.firstLoad = true
-          console.log('查看',vm.groupInfo);
         })
+        console.log('搜索参数',vm.searchConf);
       },
       closeDrawer() {
         this.getList()
@@ -773,6 +803,21 @@
         }
         console.log('array', array);
         this.Panelvalue = array;
+      },
+      search(){
+        // let vm = this
+        // apiGroup({
+        //   app_group_id:vm.searchConf.app_group_id,
+        //   interface_name:vm.searchConf.interface_name,
+        //   api_class:vm.searchConf.api_class
+        // }).then(response => {
+        //   vm.groupInfo = response.data.data.data
+        //   vm.appinfo = response.data.data.appinfo
+        //   vm.co = response.data.data.co
+        //   vm.firstLoad = true
+        // })
+        // console.log('搜索项',vm.searchConf);
+        this.getList();
       }
     }
   }
