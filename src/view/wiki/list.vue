@@ -33,6 +33,10 @@
         <div class="wiki-logo" v-else>接口文档</div>
       </template>
       <div class="wiki-nav">
+        <MenuItem name="explain" to="/wiki/explain">
+          <Icon type="md-list-box" />
+          文档说明
+        </MenuItem>
         <MenuItem name="list" to="/wiki/list">
           <Icon type="md-list-box" />
           接口列表

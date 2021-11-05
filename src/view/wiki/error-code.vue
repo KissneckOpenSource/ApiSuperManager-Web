@@ -3,6 +3,10 @@
     <Menu mode="horizontal" theme="dark" active-name="error">
       <div class="wiki-logo"></div>
       <div class="wiki-nav">
+        <MenuItem name="explain" to="/wiki/explain">
+          <Icon type="md-list-box" />
+          文档说明
+        </MenuItem>
         <MenuItem name="list" to="/wiki/list">
           <Icon type="md-list-box" />
           接口列表
