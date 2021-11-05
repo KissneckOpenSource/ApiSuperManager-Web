@@ -76,7 +76,7 @@ export default {
       minLogo,
       maxLogo,
       isFullscreen: false,
-      version: 2,
+      version: 1,
     };
   },
   computed: {
