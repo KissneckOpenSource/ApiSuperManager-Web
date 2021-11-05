@@ -14,7 +14,7 @@
             </Select>
           </FormItem>
           <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.group_hash" clearable placeholder="请选择接口分组" style="width:200px">
+            <Select v-model="searchConf.group_hash" clearable placeholder="请选择接口分组" style="width:200px" filterable>
               <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
             </Select>
           </FormItem>

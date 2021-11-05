@@ -13,10 +13,11 @@ export const errorCode = () => {
   })
 }
 
-export const apiGroup = () => {
+export const apiGroup = (params) => {
   return axios.request({
     url: 'Api/groupList',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
