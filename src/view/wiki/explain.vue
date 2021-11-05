@@ -53,7 +53,10 @@
         >
         </el-tree>
       </div>
-      <div v-html="html"></div>
+      <!-- <div v-html="html"></div> -->
+      <div style="width:60%">
+      <readme></readme>
+      </div>
     </div>
     <Footer class="wiki-footer-center"></Footer>
   </Layout>
@@ -62,15 +65,18 @@
 import "./explain.less";
 import { errorCode, logout } from "@/api/wiki";
 import { setToken } from "@/libs/util";
-// import readme from "./qw.md";
+import readme from "@/view/wiki/readme.md";
 export default {
   name: "explain",
   created() {
     this.error();
   },
+  components:{
+    readme
+  },
   data() {
     return {
-      html: "",
+      // html: "",
       app_id: sessionStorage.getItem("ApiAdmin_AppInfo"),
       data: [],
       co: "",
