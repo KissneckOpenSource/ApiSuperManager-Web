@@ -96,6 +96,15 @@ export const otherRouter = [
     component: () => import('@/view/error-page/404.vue')
   },
   {
+    path: '/wiki/explain',
+    name: 'wiki_explain',
+    meta: {
+      title: '文档说明',
+      hideInMenu: true
+    },
+    component: () => import('@/view/wiki/explain.vue')
+  },
+  {
     path: '/wiki/list',
     name: 'wiki_list',
     meta: {
