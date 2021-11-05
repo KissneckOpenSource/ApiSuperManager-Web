@@ -16,7 +16,7 @@ import '@/assets/styles/flex.scss' // flex css
 import '@/assets/styles/index.scss' // common css
 import '@/assets/icons' // icon
 
-import Showdown from 'showdown'
+// import Showdown from 'showdown'
 //markdown
 // vxe-table
 import 'xe-utils'
@@ -74,12 +74,12 @@ Vue.prototype.hasRule = (access) => {
   })
 }
 
-Vue.prototype.md2html =(md) =>{
-  let converter = new Showdown.Converter()
-  let text = md.toString()
-  let html = converter.makeHtml(text)
-  return html
-}
+// Vue.prototype.md2html =(md) =>{
+//   let converter = new Showdown.Converter()
+//   let text = md.toString()
+//   let html = converter.makeHtml(text)
+//   return html
+// }
 
 /* eslint-disable no-new */
 new Vue({
