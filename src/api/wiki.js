@@ -70,3 +70,12 @@ export const logout = () => {
     method: 'get'
   })
 }
+
+
+// 文档说明
+export const getDocMenu = () => {
+  return axios.request({
+    url: 'Api/getDocMenu',
+    method: 'get'
+  })
+}
