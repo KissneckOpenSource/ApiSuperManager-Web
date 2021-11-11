@@ -22,27 +22,10 @@ module.exports = {
   lintOnSave: false,
   chainWebpack: config => {
     config.resolve.alias.set('@', resolve('src')).set('_c', resolve('src/components'));
-    // const markdownRules = config.module.rule('markdown')
-    // markdownRules.test(/\.md$/);
-    // markdownRules.use('vue-loader')
-    // .loader('vue-loader')
-    // .end()
-    // .use('vue-markdown-loader')
-    // .loader('vue-markdown-loader/lib/markdown-complier')
-    // .options({
-    //   raw: true
-    // })
-    // .end()
     config.module.rule('md')
-   .test(/\.md/)
-   .use('vue-loader')
-   .loader('vue-loader')
-   .end()
-   .use('vue-markdown-loader')
-   .loader('vue-markdown-loader/lib/markdown-compiler')
-   .options({
-    raw: true
-   })
+      .test(/\.md/)
+      .use('text.loader')
+      .loader('text-loader')
   },
   configureWebpack: {
     externals: {

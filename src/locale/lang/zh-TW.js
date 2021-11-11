@@ -18,6 +18,7 @@ export default {
   delete_button: '刪除',
   edit_button: '編輯',
   create_file: '创建代码',
+  create_mdButton: '生成文档',
   open_choose: '啟用',
   close_choose: '禁用',
   show_choose: '顯示',

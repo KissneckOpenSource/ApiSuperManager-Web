@@ -11,6 +11,15 @@ export const getHash = () => {
   })
 }
 
+export const create_md = (hash) => {
+  return axios.request({
+    url: 'InterfaceList/createDoc',
+    method: 'get',
+    params: {
+      id: hash
+    }
+  })
+}
 /**
  * 刷新路由
  * @returns {wx.RequestTask | never}

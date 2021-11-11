@@ -5,115 +5,269 @@
   <div>
     <Row>
       <Col span="24">
-      <Card class="margin-bottom-10" v-if="$store.state.app.advanceMode == 1">
-        <Form inline>
-          <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.status" clearable placeholder='请选择状态' style="width:120px">
-              <Option :value="1">启用</Option>
-              <Option :value="0">禁用</Option>
-            </Select>
-          </FormItem>
-          <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.group_hash" clearable placeholder="请选择接口分组" style="width:200px" filterable>
-              <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
-            </Select>
-          </FormItem>
-          <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.way_type" clearable placeholder="请选择继承目标" style="width:200px">
-              <Option v-for="(v, i) in typeGroup" :value="v.value" :kk="i" :key="v.value"> {{v.name}}</Option>
-            </Select>
-          </FormItem>
-          <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.app_group_id" clearable placeholder="请选择应用" style="width:200px">
-              <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group"> {{v.app_name}}</Option>
-            </Select>
-          </FormItem>
-          <FormItem class="margin-bottom-0">
-            <Select v-model="searchConf.type" clearable placeholder="请选择类别" style="width:120px">
-              <Option :value="1">接口标识</Option>
-              <Option :value="2">接口名称</Option>
-              <Option :value="3">真实类库</Option>
-            </Select>
-          </FormItem>
-          <FormItem class="margin-bottom-0">
-            <Input v-model="searchConf.keywords" placeholder=""></Input>
-          </FormItem>
-          <FormItem class="margin-bottom-0">
-            <Button type="primary" @click="search">{{ $t('find_button') }}/{{ $t('refresh_button') }}</Button>
-          </FormItem>
-        </Form>
-      </Card>
+        <Card class="margin-bottom-10" v-if="$store.state.app.advanceMode == 1">
+          <Form inline>
+            <FormItem class="margin-bottom-0">
+              <Select
+                v-model="searchConf.status"
+                clearable
+                placeholder="请选择状态"
+                style="width: 120px"
+              >
+                <Option :value="1">启用</Option>
+                <Option :value="0">禁用</Option>
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Select
+                v-model="searchConf.group_hash"
+                clearable
+                placeholder="请选择接口分组"
+                style="width: 200px"
+                filterable
+              >
+                <Option
+                  v-for="(v, i) in apiGroup"
+                  :value="v.hash"
+                  :kk="i"
+                  :key="v.hash"
+                >
+                  {{ v.name }}</Option
+                >
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Select
+                v-model="searchConf.way_type"
+                clearable
+                placeholder="请选择继承目标"
+                style="width: 200px"
+              >
+                <Option
+                  v-for="(v, i) in typeGroup"
+                  :value="v.value"
+                  :kk="i"
+                  :key="v.value"
+                >
+                  {{ v.name }}</Option
+                >
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Select
+                v-model="searchConf.app_group_id"
+                clearable
+                placeholder="请选择应用"
+                style="width: 200px"
+              >
+                <Option
+                  v-for="(v, i) in appList"
+                  :value="v.id"
+                  :kk="i"
+                  :key="v.app_group"
+                >
+                  {{ v.app_name }}</Option
+                >
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Select
+                v-model="searchConf.type"
+                clearable
+                placeholder="请选择类别"
+                style="width: 120px"
+              >
+                <Option :value="1">接口标识</Option>
+                <Option :value="2">接口名称</Option>
+                <Option :value="3">真实类库</Option>
+              </Select>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Input v-model="searchConf.keywords" placeholder=""></Input>
+            </FormItem>
+            <FormItem class="margin-bottom-0">
+              <Button type="primary" @click="search"
+                >{{ $t("find_button") }}/{{ $t("refresh_button") }}</Button
+              >
+            </FormItem>
+          </Form>
+        </Card>
       </Col>
     </Row>
     <Row>
       <Col span="24">
-      <Card>
-        <div class="margin-bottom-15" v-if="$store.state.app.advanceMode == 1">
-          <Button type="primary" v-has="'InterfaceList/add'" @click="alertAdd" icon="md-add">{{ $t('add_button') }}</Button>
-          <Button type="warning" v-has="'InterfaceList/refresh'" class="margin-left-5" @click="handleShowChooseApp" icon="md-refresh">刷新路由</Button>
-          <Button type="info" class="margin-left-5" to="/wiki/list" icon="md-bookmarks">接口文档</Button>
-        </div>
-        <div >
-          <vxe-grid ref="xGrid2" v-bind="gridOptions" v-if="$store.state.app.advanceMode == 2">
-            <template #input_filter="{ column, $panel }">
-              <div>
-                <div v-for="(option, index) in column.filters" :key="index">
-                  <input type="type" v-model="option.data" @input="changeFilterEvent(evnt, option, $panel)" />
+        <Card>
+          <div
+            class="margin-bottom-15"
+            v-if="$store.state.app.advanceMode == 1"
+          >
+            <Button
+              type="primary"
+              v-has="'InterfaceList/add'"
+              @click="alertAdd"
+              icon="md-add"
+              >{{ $t("add_button") }}</Button
+            >
+            <Button
+              type="warning"
+              v-has="'InterfaceList/refresh'"
+              class="margin-left-5"
+              @click="handleShowChooseApp"
+              icon="md-refresh"
+              >刷新路由</Button
+            >
+            <Button
+              type="info"
+              class="margin-left-5"
+              to="/wiki/list"
+              icon="md-bookmarks"
+              >接口文档</Button
+            >
+          </div>
+          <div>
+            <vxe-grid
+              ref="xGrid2"
+              v-bind="gridOptions"
+              v-if="$store.state.app.advanceMode == 2"
+            >
+              <template #input_filter="{ column, $panel }">
+                <div>
+                  <div v-for="(option, index) in column.filters" :key="index">
+                    <input
+                      type="type"
+                      v-model="option.data"
+                      @input="changeFilterEvent(evnt, option, $panel)"
+                    />
+                  </div>
                 </div>
-              </div>
-            </template>
-          </vxe-grid>
-          <Table :loading="listLoading" :columns="columnsList" :data="tableData" border disabled-hover v-if="$store.state.app.advanceMode == 1"></Table>
-        </div>
-        <div class="margin-top-15" style="text-align: center" v-if="$store.state.app.advanceMode == 1">
-          <Page :total="tableShow.listCount" :current="tableShow.currentPage" :page-size="tableShow.pageSize" @on-change="changePage" :page-size-opts="[20, 30, 40, 50]" @on-page-size-change="changeSize" show-elevator
-            show-sizer show-total></Page>
-        </div>
-      </Card>
+              </template>
+            </vxe-grid>
+            <Table
+              :loading="listLoading"
+              :columns="columnsList"
+              :data="tableData"
+              border
+              disabled-hover
+              v-if="$store.state.app.advanceMode == 1"
+            ></Table>
+          </div>
+          <div
+            class="margin-top-15"
+            style="text-align: center"
+            v-if="$store.state.app.advanceMode == 1"
+          >
+            <Page
+              :total="tableShow.listCount"
+              :current="tableShow.currentPage"
+              :page-size="tableShow.pageSize"
+              @on-change="changePage"
+              :page-size-opts="[20, 30, 40, 50]"
+              @on-page-size-change="changeSize"
+              show-elevator
+              show-sizer
+              show-total
+            ></Page>
+          </div>
+        </Card>
       </Col>
     </Row>
-    <Modal :mask-closable="false" :closable="false" v-model="modalSetting.show" width="668" :styles="{top: '30px'}" @on-visible-change="doCancel">
-      <p slot="header" style="color:#2d8cf0">
+    <Modal
+      :mask-closable="false"
+      :closable="false"
+      v-model="modalSetting.show"
+      width="668"
+      :styles="{ top: '30px' }"
+      @on-visible-change="doCancel"
+    >
+      <p slot="header" style="color: #2d8cf0">
         <Icon type="md-alert"></Icon>
-        <span>{{formItem.id ? '编辑' : '新增'}}接口</span>
+        <span>{{ formItem.id ? "编辑" : "新增" }}接口</span>
       </p>
-      <Form ref="myForm" :rules="ruleValidate" :model="formItem" :label-width="90">
+      <Form
+        ref="myForm"
+        :rules="ruleValidate"
+        :model="formItem"
+        :label-width="90"
+      >
         <FormItem label="接口名称" prop="info">
           <Input v-model="formItem.info" placeholder="请输入接口名称"></Input>
         </FormItem>
         <FormItem label="应用" prop="app_group_id">
-          <Select v-model="formItem.app_group_id" style="width:200px" placeholder="请选择应用">
-            <Option v-for="(v, i) in appList" :value="v.id" :kk="i" :key="v.app_group" @click.native="handleAppChange(v)"> {{v.app_name}}</Option>
+          <Select
+            v-model="formItem.app_group_id"
+            style="width: 200px"
+            placeholder="请选择应用"
+          >
+            <Option
+              v-for="(v, i) in appList"
+              :value="v.id"
+              :kk="i"
+              :key="v.app_group"
+              @click.native="handleAppChange(v)"
+            >
+              {{ v.app_name }}</Option
+            >
           </Select>
         </FormItem>
         <FormItem label="真实类库" prop="api_class">
-          <Input v-model="formItem.api_class" placeholder="请输入真实类库"></Input>
+          <Input
+            v-model="formItem.api_class"
+            placeholder="请输入真实类库"
+          ></Input>
         </FormItem>
         <FormItem label="接口说明" prop="des">
-          <Input v-model="formItem.des" placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"></Input>
+          <Input
+            v-model="formItem.des"
+            placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"
+          ></Input>
         </FormItem>
         <FormItem label="接口分组" prop="group_hash">
-          <Select v-model="formItem.group_hash" style="width:200px">
-            <Option v-for="(v, i) in apiGroup" :value="v.hash" :kk="i" :key="v.hash"> {{v.name}}</Option>
+          <Select v-model="formItem.group_hash" style="width: 200px">
+            <Option
+              v-for="(v, i) in apiGroup"
+              :value="v.hash"
+              :kk="i"
+              :key="v.hash"
+            >
+              {{ v.name }}</Option
+            >
           </Select>
         </FormItem>
         <FormItem label="继承" prop="way_type">
-          <Select v-model="searchConf.way_type" clearable placeholder="请选择继承目标" style="width:200px">
-            <Option v-for="(v, i) in typeGroup" :value="v.value" :kk="i" :key="v.value"> {{v.name}}</Option>
+          <Select
+            v-model="searchConf.way_type"
+            clearable
+            placeholder="请选择继承目标"
+            style="width: 200px"
+          >
+            <Option
+              v-for="(v, i) in typeGroup"
+              :value="v.value"
+              :kk="i"
+              :key="v.value"
+            >
+              {{ v.name }}</Option
+            >
           </Select>
         </FormItem>
         <FormItem label="路由类型" prop="router_type">
-          <Select v-model="formItem.router_type" style="width:200px" :key="updateView" @on-change="handleUpdateView">
-            <Option :value="1" :key="1">
-              资源路由
-            </Option>
-            <Option :value="0" :key="0">
-              一般接口
-            </Option>
+          <Select
+            v-model="formItem.router_type"
+            style="width: 200px"
+            :key="updateView"
+            @on-change="handleUpdateView"
+          >
+            <Option :value="1" :key="1"> 资源路由 </Option>
+            <Option :value="0" :key="0"> 一般接口 </Option>
           </Select>
         </FormItem>
-        <FormItem label="请求方式" prop="method" >
-          <Select v-model="formItem.method" style="width:200px" :key="updateView" :disabled="formItem.router_type == 1">
+        <FormItem label="请求方式" prop="method">
+          <Select
+            v-model="formItem.method"
+            style="width: 200px"
+            :key="updateView"
+            :disabled="formItem.router_type == 1"
+          >
             <Option :value="0" :key="0"> 不限</Option>
             <Option :value="1" :key="1"> POST</Option>
             <Option :value="2" :key="2"> GET</Option>
@@ -122,37 +276,62 @@
             <Option :value="5" :key="5"> PATCH</Option>
           </Select>
           <Tooltip placement="right" max-width="800">
-            <Icon type="md-help-circle" class="margin-left-5" color="#2d8cf0" size="20" />
+            <Icon
+              type="md-help-circle"
+              class="margin-left-5"
+              color="#2d8cf0"
+              size="20"
+            />
             <div slot="content">
-              <p>请注意：这里所配置的请求方式，将兼容Access-Token的获取方式，比如，当前接口允许使用GET请求，那么系统将会识别GET参数中的Access-Token。</p>
+              <p>
+                请注意：这里所配置的请求方式，将兼容Access-Token的获取方式，比如，当前接口允许使用GET请求，那么系统将会识别GET参数中的Access-Token。
+              </p>
             </div>
           </Tooltip>
         </FormItem>
         <FormItem label="接口映射" prop="hash">
           <Input style="width: 300px" disabled v-model="formItem.hash"></Input>
-          <Tag color="error" class="margin-left-5">系统自动生成，不允许修改</Tag>
+          <Tag color="error" class="margin-left-5"
+            >系统自动生成，不允许修改</Tag
+          >
         </FormItem>
         <FormItem label="AccessToken" prop="access_token">
-          <Select v-model="formItem.access_token" style="width:200px">
+          <Select v-model="formItem.access_token" style="width: 200px">
             <Option :value="0" :key="0"> 简易认证</Option>
             <Option :value="1" :key="1"> 复杂认证</Option>
           </Select>
           <Tooltip placement="right" max-width="800">
-            <Icon type="md-help-circle" class="margin-left-5" color="#2d8cf0" size="20" />
+            <Icon
+              type="md-help-circle"
+              class="margin-left-5"
+              color="#2d8cf0"
+              size="20"
+            />
             <div slot="content">
-              <p>新版本的全部接口都必须在Header中传递access-token字段，所以AccessToken必须要验证。</p>
-              <p>简易认证：在请求这类接口时候，请直接在header中传递AppSecret即可，终身有效。</p>
-              <p>复杂认证：在请求这类接口时候，先请求getAccessToken接口获取可用的AccessToken，记住这里的AccessToken默认只有2小时的有效期。</p>
+              <p>
+                新版本的全部接口都必须在Header中传递access-token字段，所以AccessToken必须要验证。
+              </p>
+              <p>
+                简易认证：在请求这类接口时候，请直接在header中传递AppSecret即可，终身有效。
+              </p>
+              <p>
+                复杂认证：在请求这类接口时候，先请求getAccessToken接口获取可用的AccessToken，记住这里的AccessToken默认只有2小时的有效期。
+              </p>
             </div>
           </Tooltip>
         </FormItem>
         <FormItem label="路由模式" prop="hash_type">
-          <Select v-model="formItem.hash_type" style="width:200px">
+          <Select v-model="formItem.hash_type" style="width: 200px">
             <Option :value="1" :key="1"> 普通模式</Option>
             <Option :value="2" :key="2"> 加密模式</Option>
           </Select>
           <Tooltip placement="right" max-width="800">
-            <Icon type="md-help-circle" class="margin-left-5" color="#2d8cf0" size="20" />
+            <Icon
+              type="md-help-circle"
+              class="margin-left-5"
+              color="#2d8cf0"
+              size="20"
+            />
             <div slot="content">
               <p>普通模式：接口将不采用hash映射，会直接使用真实类库来请求。</p>
               <p>加密模式：接口将采用hash映射，以达到隐藏真实类库的目的。</p>
@@ -160,45 +339,85 @@
           </Tooltip>
         </FormItem>
         <FormItem label="测试模式" prop="is_test">
-          <Select v-model="formItem.is_test" style="width:200px">
+          <Select v-model="formItem.is_test" style="width: 200px">
             <Option :value="0" :key="0"> 生产模式</Option>
             <Option :value="1" :key="1"> 测试模式</Option>
           </Select>
         </FormItem>
       </Form>
       <div slot="footer">
-        <Button type="text" @click="cancel" class="margin-right-10">取消</Button>
-        <Button type="primary" @click="submit" :loading="modalSetting.loading">确定</Button>
+        <Button type="text" @click="cancel" class="margin-right-10"
+          >取消</Button
+        >
+        <Button type="primary" @click="submit" :loading="modalSetting.loading"
+          >确定</Button
+        >
       </div>
     </Modal>
-    <Modal v-model="chooseAppModal" width="370" :closable="false" :mask-closable="false">
-      <p slot="header" style="color:#2d8cf0;text-align:center">
+    <Modal
+      v-model="chooseAppModal"
+      width="370"
+      :closable="false"
+      :mask-closable="false"
+    >
+      <p slot="header" style="color: #2d8cf0; text-align: center">
         <Icon type="information-circled"></Icon>
         <span>选择应用</span>
       </p>
       <div>
-        <Select v-model="app_group_id" placeholder="请选择要刷新的应用" filterable>
-          <Option v-for="(v, i) in appGroupList" :value="v.id" :kk="i" :key="v.app_group" @click.native="handleRefreshAppChange(v)"> {{v.app_name}}</Option>
+        <Select
+          v-model="app_group_id"
+          placeholder="请选择要刷新的应用"
+          filterable
+        >
+          <Option
+            v-for="(v, i) in appGroupList"
+            :value="v.id"
+            :kk="i"
+            :key="v.app_group"
+            @click.native="handleRefreshAppChange(v)"
+          >
+            {{ v.app_name }}</Option
+          >
         </Select>
         <!-- <Select v-model="app_group_hash" clearable placeholder="请选择要刷新的应用">
           <Option v-for="(v, i) in appGroupList" :value="v.app_group" :kk="i" :key="v.app_group" @click.native="handleRefreshAppChange(v)"> {{v.app_name}}</Option>
         </Select> -->
       </div>
       <div slot="footer">
-        <Button type="text" @click="chooseAppModal = false;" class="margin-right-10">取消</Button>
+        <Button
+          type="text"
+          @click="chooseAppModal = false"
+          class="margin-right-10"
+          >取消</Button
+        >
         <Button type="primary" @click="confirmApp">确定</Button>
       </div>
     </Modal>
-    <Modal v-model="confirmRefresh" width="360" :closable="false" :mask-closable="false">
-      <p slot="header" style="color:#f60;text-align:center">
+    <Modal
+      v-model="confirmRefresh"
+      width="360"
+      :closable="false"
+      :mask-closable="false"
+    >
+      <p slot="header" style="color: #f60; text-align: center">
         <Icon type="information-circled"></Icon>
         <span>确定要刷新路由么</span>
       </p>
-      <div style="text-align:center">
-        <p>刷新路由是一个非常危险的操作，它有可能影响到您现有接口的访问，请确认无误后刷新！！</p>
+      <div style="text-align: center">
+        <p>
+          刷新路由是一个非常危险的操作，它有可能影响到您现有接口的访问，请确认无误后刷新！！
+        </p>
       </div>
       <div slot="footer">
-        <Button type="error" size="large" long :loading="refreshLoading" @click="refreshRoute">确定刷新</Button>
+        <Button
+          type="error"
+          size="large"
+          long
+          :loading="refreshLoading"
+          @click="refreshRoute"
+          >确定刷新</Button
+        >
       </div>
     </Modal>
   </div>
@@ -210,6 +429,7 @@ import {
   add,
   edit,
   del,
+  create_md,
   getHash,
   refresh,
   getAppList,
@@ -218,7 +438,6 @@ import {
 import { getAll } from "@/api/interface-group";
 import Sortable from "sortablejs";
 const editButton = (vm, h, currentRow, index) => {
-  // console.log('editButton',vm.buttonShow.edit, h, currentRow, index)
   if (vm.buttonShow.edit) {
     return h(
       "Button",
@@ -226,7 +445,7 @@ const editButton = (vm, h, currentRow, index) => {
         props: {
           type: "primary",
         },
-        style: { 
+        style: {
           margin: "0 5px",
         },
         on: {
@@ -249,6 +468,32 @@ const editButton = (vm, h, currentRow, index) => {
         },
       },
       vm.$t("edit_button")
+    );
+  }
+};
+const create_mdButton = (vm, h, currentRow, index) => {
+  if (vm.buttonShow.create) {
+    return h(
+      "Button",
+      {
+        props: {
+          type: "success",
+          placement: "top"
+        },
+        style: {
+          margin: "0 5px",
+        },
+        on: {
+          click: () => {
+            create_md(currentRow.id).then((response) => {
+              if (response.code == 1) {
+                vm.$Message.success(response.data.msg);
+              }
+            });
+          },
+        },
+      },
+      vm.$t("create_mdButton")
     );
   }
 };
@@ -305,11 +550,10 @@ const createButton = (vm, h, currentRow, index) => {
         },
         on: {
           "on-ok": () => {
-            console.log("currentRow: ", currentRow);
             let data = {
               id: currentRow.id,
-              api_class:currentRow.api_class,
-              method:currentRow.method,
+              api_class: currentRow.api_class,
+              method: currentRow.method,
               type: 1,
             };
             createFile(data).then((response) => {
@@ -402,7 +646,7 @@ export default {
       return {
         border: true,
         resizable: true,
-        stripe:true,
+        stripe: true,
         showHeaderOverflow: false,
         showOverflow: true,
         highlightHoverRow: true,
@@ -454,7 +698,7 @@ export default {
           ajax: {
             // 接收 Promise 对象
             query: ({ page, sorts, filters, form }) => {
-              console.log('query',page)
+              console.log("query", page);
               const queryParams = Object.assign({}, form);
               queryParams.page = page.currentPage;
               queryParams.size = page.pageSize;
@@ -497,12 +741,12 @@ export default {
               let removePromiseList = [];
               let updatePromiseList = [];
               insertRecords.forEach(async (e, idx) => {
-                console.log('await getHash()',)
-                let res = await getHash()
-                e.hash = res.data.data.hash
-                e.is_test = 0
-                e.hash_type = 1
-                e.access_token = 0
+                console.log("await getHash()");
+                let res = await getHash();
+                e.hash = res.data.data.hash;
+                e.is_test = 0;
+                e.hash_type = 1;
+                e.access_token = 0;
                 insertPromiseList[idx] = add(e);
               });
               // pendingPromiseList.forEach((e, idx) => {
@@ -526,26 +770,35 @@ export default {
           },
         },
         columns: [
-          { type: "checkbox", title: "ID", minWidth : '100px', width: '100px', align: "center" },
+          {
+            type: "checkbox",
+            title: "ID",
+            minWidth: "100px",
+            width: "100px",
+            align: "center",
+          },
           {
             field: "app_group_id",
             align: "center",
             title: "应用名称",
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             sortable: true,
             filters: [{ data: "" }],
             slots: {
-              default: ({row}) => {
+              default: ({ row }) => {
                 return [
                   <span>
-                  {
-                    this.appList.findIndex(e => e.id == row.app_group_id) > -1?
-                    this.appList[(this.appList.findIndex(e => e.id == row.app_group_id))].app_name
-                    :'非法或未填写'
-                  }
-                  </span>
-                ]
+                    {this.appList.findIndex((e) => e.id == row.app_group_id) >
+                    -1
+                      ? this.appList[
+                          this.appList.findIndex(
+                            (e) => e.id == row.app_group_id
+                          )
+                        ].app_name
+                      : "非法或未填写"}
+                  </span>,
+                ];
               },
               filter: "input_filter",
               edit: ({ row }) => {
@@ -556,9 +809,15 @@ export default {
                     filterable
                     filter-by-label
                   >
-                    {this.appList.map((v,i) => {
+                    {this.appList.map((v, i) => {
                       return (
-                        <Option value={v.id} key={v.id} kk={i} label={v.app_name} onClick={row.app_group_hash = v.app_group}>
+                        <Option
+                          value={v.id}
+                          key={v.id}
+                          kk={i}
+                          label={v.app_name}
+                          onClick={(row.app_group_hash = v.app_group)}
+                        >
                           {v.app_name}
                         </Option>
                       );
@@ -577,8 +836,8 @@ export default {
             field: "info",
             align: "center",
             title: "接口名称",
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             sortable: true,
             filters: [{ data: "" }],
             slots: {
@@ -594,8 +853,8 @@ export default {
             field: "api_class",
             align: "center",
             title: "真实类库",
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             sortable: true,
             filters: [{ data: "" }],
             slots: {
@@ -611,7 +870,7 @@ export default {
             field: "des",
             align: "center",
             title: "接口说明",
-            minWidth: '180px',
+            minWidth: "180px",
             sortable: true,
             filters: [{ data: "" }],
             slots: {
@@ -627,38 +886,50 @@ export default {
             field: "group_hash",
             align: "center",
             title: "接口分组",
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             sortable: true,
             filters: [{ data: "" }],
             slots: {
-              default: ({row}) => {
+              default: ({ row }) => {
                 return [
                   <span>
-                  {
-                    this.apiGroup.findIndex(e => e.hash == row.group_hash) > -1?
-                    this.apiGroup[(this.apiGroup.findIndex(e => e.hash == row.group_hash))].name
-                    :'非法或未填写'
-                  }
-                  </span>
-                ]
+                    {this.apiGroup.findIndex((e) => e.hash == row.group_hash) >
+                    -1
+                      ? this.apiGroup[
+                          this.apiGroup.findIndex(
+                            (e) => e.hash == row.group_hash
+                          )
+                        ].name
+                      : "非法或未填写"}
+                  </span>,
+                ];
               },
               filter: "input_filter",
-              edit: ({row}) => {
+              edit: ({ row }) => {
                 return [
-                  <Select v-model={row.group_hash} clearable placeholder="请选择接口分组" filterable filter-by-label>
-                    {
-                      this.apiGroup.map((v,i) => {
-                        return (
-                          <Option value={v.hash} key={v.hash} kk={i} label={v.name}>
-                            {v.name}
-                          </Option>
-                        )
-                      })
-                    }
-                  </Select>
-                ]
-              }
+                  <Select
+                    v-model={row.group_hash}
+                    clearable
+                    placeholder="请选择接口分组"
+                    filterable
+                    filter-by-label
+                  >
+                    {this.apiGroup.map((v, i) => {
+                      return (
+                        <Option
+                          value={v.hash}
+                          key={v.hash}
+                          kk={i}
+                          label={v.name}
+                        >
+                          {v.name}
+                        </Option>
+                      );
+                    })}
+                  </Select>,
+                ];
+              },
             },
             titleHelp: { message: "接口分组必须填写！" },
             editRender: {
@@ -671,8 +942,8 @@ export default {
             align: "center",
             title: "路由类型",
             sortable: true,
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             filters: [
               { label: "资源路由", value: 1 },
               { label: "一般接口", value: 0 },
@@ -686,9 +957,12 @@ export default {
                     return [<Tag attrs={{ color: "primary" }}>一般接口</Tag>];
                 }
               },
-              edit: ({ row,column }) => {
+              edit: ({ row, column }) => {
                 return [
-                  <Select v-model={row.router_type} on-change={row.method = undefined}>
+                  <Select
+                    v-model={row.router_type}
+                    on-change={(row.method = undefined)}
+                  >
                     <Option value={1} key={1}>
                       资源路由
                     </Option>
@@ -710,8 +984,8 @@ export default {
             title: "请求方式",
             align: "center",
             sortable: true,
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             filters: [
               { label: "不限", value: "0" },
               { label: "POST", value: "1" },
@@ -743,7 +1017,11 @@ export default {
               },
               edit: ({ row }) => {
                 return [
-                  <Select v-model={row.method} disabled={row.router_type == 1} key={row.router_type}>
+                  <Select
+                    v-model={row.method}
+                    disabled={row.router_type == 1}
+                    key={row.router_type}
+                  >
                     <Option value={0} key={0}>
                       {" "}
                       不限
@@ -783,8 +1061,8 @@ export default {
             align: "center",
             title: "接口状态",
             sortable: true,
-            minWidth: '180px',
-            width: '180px',
+            minWidth: "180px",
+            width: "180px",
             filters: [{ data: "" }],
             slots: {
               default: ({ row }) => {
@@ -818,9 +1096,9 @@ export default {
           {
             title: "操作",
             align: "center",
-            width: '500px',
+            width: "500px",
             showOverflow: true,
-            fixed: 'right',
+            fixed: "right",
             slots: {
               default: (params, h) => {
                 return [
@@ -830,7 +1108,8 @@ export default {
                     {requestButton(this, h, params.row, params.rowIndex)}
                     {responseButton(this, h, params.row, params.rowIndex)}
                     {deleteButton(this, h, params.row, params.rowIndex)}
-                  </div>
+                    {create_mdButton(this, h, params.row, params.rowIndex)}
+                  </div>,
                 ];
               },
             },
@@ -1074,8 +1353,8 @@ export default {
         {
           title: "操作",
           align: "center",
-          minWidth: 500,
-          fixed: 'right',
+          minWidth: 580,
+          fixed: "right",
           render: (h, params) => {
             return h("div", [
               createButton(this, h, params.row, params.index),
@@ -1083,6 +1362,7 @@ export default {
               requestButton(this, h, params.row, params.index),
               responseButton(this, h, params.row, params.index),
               deleteButton(this, h, params.row, params.index),
+              create_mdButton(this, h, params.row, params.index),
             ]);
           },
         },
@@ -1130,7 +1410,7 @@ export default {
         id: 0,
         app_group_hash: "", // 应用hash
         app_group_id: 1, // 应用id
-        router_type:0,
+        router_type: 0,
       },
       ruleValidate: {
         api_class: [
@@ -1149,6 +1429,7 @@ export default {
         request: true,
         response: true,
         del: true,
+        c_md: true,
         create: true,
         changeStatus: true,
       },
@@ -1181,11 +1462,9 @@ export default {
     getAppList().then((response) => {
       vm.appList = response.data.data;
     });
-    try{
+    try {
       this.columnDrop2();
-    }catch(e){
-
-    }
+    } catch (e) {}
   },
   activated() {
     let vm = this;
@@ -1198,11 +1477,11 @@ export default {
     });
   },
   methods: {
-    handleUpdateView(e){
-      this.updateView++
-      console.log('e',e)
-      if(e == 1){
-        this.formItem.method = undefined
+    handleUpdateView(e) {
+      this.updateView++;
+      console.log("e", e);
+      if (e == 1) {
+        this.formItem.method = undefined;
       }
     },
     changeFilterEvent(evnt, option, $panel) {
@@ -1296,7 +1575,7 @@ export default {
     },
     submit() {
       let vm = this;
-      console.log('查看',vm.formItem, vm.$refs["myForm"]);
+      console.log("查看", vm.formItem, vm.$refs["myForm"]);
       this.$refs["myForm"].validate((valid) => {
         if (valid) {
           vm.modalSetting.loading = true;
@@ -1328,7 +1607,7 @@ export default {
     },
     cancel() {
       this.modalSetting.show = false;
-      this.formItem= {
+      this.formItem = {
         api_class: "",
         info: "",
         des: "", //接口描述
@@ -1341,8 +1620,8 @@ export default {
         id: 0,
         app_group_hash: "", // 应用hash
         app_group_id: 1, // 应用id
-        router_type:0,
-      }
+        router_type: 0,
+      };
     },
     changePage(page) {
       this.tableShow.currentPage = page;

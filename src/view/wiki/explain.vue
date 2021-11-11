@@ -42,10 +42,9 @@
         </el-input>
 
         <el-tree
-          class="filter-tree "
+          class="filter-tree"
           :data="data1"
           :props="defaultProps"
-          default-expand-all
           @node-click="treeclick"
           :filter-node-method="filterNode"
           :expand-on-click-node="false"
@@ -53,9 +52,8 @@
         >
         </el-tree>
       </div>
-      <!-- <div v-html="html"></div> -->
-      <div style="width:60%">
-      <readme></readme>
+      <div style="width: 70%">
+        <vue-markdown table-class="ss" v-if="kaiguan">{{ html }}</vue-markdown>
       </div>
     </div>
     <Footer class="wiki-footer-center"></Footer>
@@ -63,20 +61,22 @@
 </template>
 <script>
 import "./explain.less";
-import { errorCode, logout,getDocMenu } from "@/api/wiki";
+import { errorCode, logout, getDocMenu } from "@/api/wiki";
 import { setToken } from "@/libs/util";
-import readme from "@/view/wiki/readme.md";
+import VueMarkdown from "vue-markdown";
+import html1 from "./112.md";
 export default {
   name: "explain",
   created() {
     this.error();
   },
-  components:{
-    readme
+  components: {
+    VueMarkdown,
   },
   data() {
     return {
-      // html: "",
+      kaiguan: true,
+      html: '文档展示',
       app_id: sessionStorage.getItem("ApiAdmin_AppInfo"),
       data: [],
       co: "",
@@ -88,8 +88,8 @@ export default {
       },
     };
   },
-  created(){
-    let vm=this;
+  created() {
+    let vm = this;
     vm.getDocMenu();
   },
   watch: {
@@ -120,13 +120,28 @@ export default {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
     },
-    treeclick() {},
-    getDocMenu(){
-      let vm=this;
-      getDocMenu().then((response)=>{
-       vm.data1 = response.data.data;
+    treeclick(data) {
+      this.kaiguan = false
+      if (data.children) {
+        console.log("zhe");
+        this.html = '请选择正确的路由';
+      } else {
+        if (!data.md_path) {
+          this.html = html1;
+        } else {
+          this.html = '请先创建该接口的文档';
+        }
+      }
+      this.$nextTick(() =>{
+        this.kaiguan = true
       })
-    }
+    },
+    getDocMenu() {
+      let vm = this;
+      getDocMenu().then((response) => {
+        vm.data1 = response.data.data;
+      });
+    },
   },
 };
 </script>
