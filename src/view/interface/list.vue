@@ -218,7 +218,7 @@
         <FormItem label="接口说明" prop="des">
           <Input
             v-model="formItem.des"
-            placeholder="请输入接口说明（哪个页面的接口，如果没有对应页面请留空）"
+            placeholder="请输入接口说明"
           ></Input>
         </FormItem>
         <FormItem label="接口分组" prop="group_hash">
@@ -471,32 +471,32 @@ const editButton = (vm, h, currentRow, index) => {
     );
   }
 };
-const create_mdButton = (vm, h, currentRow, index) => {
-  if (vm.buttonShow.create) {
-    return h(
-      "Button",
-      {
-        props: {
-          type: "success",
-          placement: "top"
-        },
-        style: {
-          margin: "0 5px",
-        },
-        on: {
-          click: () => {
-            create_md(currentRow.id).then((response) => {
-              if (response.code == 1) {
-                vm.$Message.success(response.data.msg);
-              }
-            });
-          },
-        },
-      },
-      vm.$t("create_mdButton")
-    );
-  }
-};
+// const create_mdButton = (vm, h, currentRow, index) => {
+//   if (vm.buttonShow.create) {
+//     return h(
+//       "Button",
+//       {
+//         props: {
+//           type: "success",
+//           placement: "top"
+//         },
+//         style: {
+//           margin: "0 5px",
+//         },
+//         on: {
+//           click: () => {
+//             create_md(currentRow.id).then((response) => {
+//               if (response.code == 1) {
+//                 vm.$Message.success(response.msg);
+//               }
+//             });
+//           },
+//         },
+//       },
+//       vm.$t("create_mdButton")
+//     );
+//   }
+// };
 const deleteButton = (vm, h, currentRow, index) => {
   if (vm.buttonShow.del) {
     return h(
@@ -1108,7 +1108,6 @@ export default {
                     {requestButton(this, h, params.row, params.rowIndex)}
                     {responseButton(this, h, params.row, params.rowIndex)}
                     {deleteButton(this, h, params.row, params.rowIndex)}
-                    {create_mdButton(this, h, params.row, params.rowIndex)}
                   </div>,
                 ];
               },
@@ -1353,7 +1352,7 @@ export default {
         {
           title: "操作",
           align: "center",
-          minWidth: 580,
+          minWidth: 480,
           fixed: "right",
           render: (h, params) => {
             return h("div", [
@@ -1362,7 +1361,7 @@ export default {
               requestButton(this, h, params.row, params.index),
               responseButton(this, h, params.row, params.index),
               deleteButton(this, h, params.row, params.index),
-              create_mdButton(this, h, params.row, params.index),
+              // create_mdButton(this, h, params.row, params.index),
             ]);
           },
         },
@@ -1419,6 +1418,9 @@ export default {
         des: [{ required: true, message: "接口说明不能为空", trigger: "blur" }],
         info: [
           { required: true, message: "接口名称不能为空", trigger: "blur" },
+        ],
+        group_has:[
+          { required: true, message: "接口分组不能为空", trigger: "blur" },
         ],
         // app_group_id: [
         //   { required: true, message: "应用不能为空", trigger: "blur" },

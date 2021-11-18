@@ -6,8 +6,16 @@
 <template>
   <Layout style="height: 100%">
     <Menu mode="horizontal" theme="dark" active-name="calculation">
-      <div class="wiki-logo"></div>
+      <template >
+        <div class="wiki-logo" @click="$router.push({ name: 'home' })">
+          首页
+        </div>
+      </template>
       <div class="wiki-nav">
+        <MenuItem name="explain" to="/wiki/explain">
+          <Icon type="md-list-box" />
+          接口设计文档
+        </MenuItem>
         <MenuItem name="list" to="/wiki/list">
           <Icon type="md-list-box" />
           接口列表

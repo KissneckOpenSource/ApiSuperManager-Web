@@ -79,3 +79,11 @@ export const getDocMenu = () => {
     method: 'get'
   })
 }
+
+export const cr_md = (id) => {
+  return axios.request({
+    url: 'Api/createDoc',
+    method: 'get',
+    params: id
+  })
+}

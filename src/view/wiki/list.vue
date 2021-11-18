@@ -40,7 +40,7 @@
       <div class="wiki-nav">
         <MenuItem name="explain" to="/wiki/explain">
           <Icon type="md-list-box" />
-          文档说明
+         接口设计文档
         </MenuItem>
         <MenuItem name="list" to="/wiki/list">
         <Icon type="md-list-box" />

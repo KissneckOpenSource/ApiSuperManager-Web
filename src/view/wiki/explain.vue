@@ -1,11 +1,20 @@
 <template>
   <Layout style="height: 100%">
     <Menu mode="horizontal" theme="dark" active-name="explain">
-      <div class="wiki-logo"></div>
+      <template v-if="!firstLoad">
+        <div class="wiki-logo">
+          <Spin size="large"></Spin>
+        </div>
+      </template>
+      <template v-else>
+        <div class="wiki-logo" @click="$router.push({ name: 'home' })">
+          首页
+        </div>
+      </template>
       <div class="wiki-nav">
         <MenuItem name="explain" to="/wiki/explain">
           <Icon type="md-list-box" />
-          文档说明
+          接口设计文档
         </MenuItem>
         <MenuItem name="list" to="/wiki/list">
           <Icon type="md-list-box" />
@@ -52,19 +61,20 @@
         >
         </el-tree>
       </div>
-      <div style="width: 70%">
-        <vue-markdown table-class="ss" v-if="kaiguan">{{ html }}</vue-markdown>
-      </div>
+      <!-- <div style="background-color:white;"> -->
+      <vue-markdown table-class="ss" v-if="kaiguan" class="markdown">{{
+        html
+      }}</vue-markdown>
+      <!-- </div> -->
     </div>
     <Footer class="wiki-footer-center"></Footer>
   </Layout>
 </template>
 <script>
 import "./explain.less";
-import { errorCode, logout, getDocMenu } from "@/api/wiki";
+import { errorCode, logout, getDocMenu, cr_md } from "@/api/wiki";
 import { setToken } from "@/libs/util";
 import VueMarkdown from "vue-markdown";
-import html1 from "./112.md";
 export default {
   name: "explain",
   created() {
@@ -75,8 +85,9 @@ export default {
   },
   data() {
     return {
+      firstLoad:false,
       kaiguan: true,
-      html: '文档展示',
+      html: "文档展示",
       app_id: sessionStorage.getItem("ApiAdmin_AppInfo"),
       data: [],
       co: "",
@@ -118,27 +129,38 @@ export default {
     },
     filterNode(value, data) {
       if (!value) return true;
-      return data.label.indexOf(value) !== -1;
+      return data.name.indexOf(value) !== -1;
     },
     treeclick(data) {
-      this.kaiguan = false
+     
+      this.kaiguan = false;
       if (data.children) {
         console.log("zhe");
-        this.html = '请选择正确的路由';
+        this.html = "请选择正确的接口";
+        this.$nextTick(() => {
+          this.kaiguan = true;
+        });
       } else {
-        if (!data.md_path) {
-          this.html = html1;
-        } else {
-          this.html = '请先创建该接口的文档';
-        }
+         this.firstLoad = false
+        cr_md({ id: data.id }).then((res) => {
+          if (res.data.code == -1) {
+            vm.$Message.error(res.data.msg);
+             this.firstLoad = true
+          } else {
+            this.html = res.data.data[0];
+             this.firstLoad = true
+            this.$nextTick(() => {
+              this.kaiguan = true;
+            });
+          }
+        });
+        // }
       }
-      this.$nextTick(() =>{
-        this.kaiguan = true
-      })
     },
     getDocMenu() {
       let vm = this;
       getDocMenu().then((response) => {
+        vm.firstLoad = true
         vm.data1 = response.data.data;
       });
     },
