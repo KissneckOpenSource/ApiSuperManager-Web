@@ -20,12 +20,12 @@
           <user :user-avator="userAvatar" />
           <language v-if="$config.useI18n" @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local" />
           <!-- <fullscreen v-model="isFullscreen" style="margin-right: 10px;" /> -->
-          <div class="versio mg-r-20">
+          <!-- <div class="versio mg-r-20">
             <Select v-model="version" style="width:80px" @on-change="handleVersionChange">
               <Option :value="1" :key="1">稳定版</Option>
               <Option :value="2" :key="2">超测版</Option>
             </Select>
-          </div>
+          </div> -->
         </header-bar>
       </Header>
       <Content class="main-content-con">
