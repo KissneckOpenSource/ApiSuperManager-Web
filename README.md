@@ -39,8 +39,6 @@ npm run build
  6. 灵活的参数规则设定
  7. 支持三方Api无缝融合
  8. ...
-
- 
 <!-- 
  ```
  ApiSuperManager（PHP部分）
